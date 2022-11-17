@@ -1,3 +1,4 @@
+// IGNORE this snippet
 //import * as quilljs from 'quill.js';
 /* https://quilljs.com/playground/ 
 
@@ -6,6 +7,15 @@
 */
 
 
+
+
+// TODO: Save note function (maybe have to put this function on the html itself)
+    // - More checking of inputs to see if they are valid ie: null, empty etc.
+    // - Password complexity requirements
+    // - More attributes for the classes (-?)
+
+
+// TODO: Getters and setters
 class User {
     constructor(username, password, dateCreated) {
         this._username = username;
@@ -16,7 +26,7 @@ class User {
         return(this._password);
     }
 }
-
+// TODO: Getters and setters
 class Note {
     constructor(noteID, noteName, dateCreated) {
         this._noteID = noteID;
@@ -25,9 +35,10 @@ class Note {
     }
 }
 
-// https://www.geeksforgeeks.org/how-to-create-hash-from-string-in-javascript/
-// https://stackoverflow.com/questions/59777670/how-can-i-hash-a-string-with-sha256-in-js
+
 // https://www.codespeedy.com/how-to-add-elements-in-json-array-using-javascript/
+// When the user clicks the registration button
+// TODO: storing of data in local json-? 
 function registration (username, password) {
     let usernameJS = username;
     let hashPassword = sha256(password);
@@ -36,19 +47,31 @@ function registration (username, password) {
         pw: hashPassword
     };
 }
+// When the user clicks the login button
+// TODO: check if input is null
 function attemptLogin (username, password) {
     let hashUsername = sha256(username);
     let hashPassword = sha256(password);
 
     // https://www.tutorialspoint.com/remove-json-element-javascript
+    // This is the optimal(-?) way to store the usernames and passwords
+        // - but we could do something simpler if we wanted
     let userPasswordDB = JSON.parse(userPasswordDB.json);
     // If password database contains the hash of the password, then authenticate and create new user object
-    // search for password based on username
-    // foreach
+        // -search for password based on username
+
     // only run if password matches username
     new user = new User(hashUsername, hashPassword);
 }
-//Hash BOTH username and password?
+
+
+
+
+
+// Function to hash (using the sha256 algorithm) whatever is input (for security)
+// (Its good as is)
+// Reference 1: https://www.geeksforgeeks.org/how-to-create-hash-from-string-in-javascript/
+// Reference 2: https://stackoverflow.com/questions/59777670/how-can-i-hash-a-string-with-sha256-in-js
 async function sha256(input) {
     // encode as UTF-8
     const msgBuffer = new TextEncoder('utf-8').encode(password);

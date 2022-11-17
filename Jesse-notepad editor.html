@@ -56,9 +56,10 @@
       /* When the add button is clicked, create a new note 
       TODO: save the previous one (only if the title has text or any content at all)
       */
+     // When clicking on a specific note, use note id to get the stored contents
       function addNote() {
         
-        insertEditorContainer = "<div id=editor-container><strong>Text</strong></div>";
+        insertEditorContainer = "<div id=editor-container><strong>Text text2</strong></div>";
         
         document.getElementById('editor-area').innerHTML = insertEditorContainer;
         //alert("addNote function called...");
@@ -81,7 +82,7 @@
         // returns a json object with contents of the editor
         // will want to do a check for if an editor (with text) exists, then try to save contents
         var content = quill.getContents();
-        alert(JSON.stringify(content));
+        alert(content.content());
       }
     </script>
   </body>
