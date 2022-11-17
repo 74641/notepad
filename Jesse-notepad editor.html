@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en_us">
+  <head>
+    <!-- Quill: JS library -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+    <!-- Quill: CSS stylesheet -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0/dist/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0/dist/js/materialize.min.js"></script>
+    
+    <!--When using type="module", it disallows same-origin script files
+      https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS/Errors/CORSRequestNotHttp
+      (Basically any javascript that needs to use Quill's resources NEEDS to run in script tags in this html doc)
+    -->
+    <script src="Notepad.js"></script>
+    <meta charset="utf-8">
+    <title>Notepad</title>
+    <style>
+      /* https://stackoverflow.com/questions/4705848/rendering-html-inside-textarea */
+      div#noteDiv {
+        width: 100%;
+        height: 200px;
+        border-radius: 5px;
+        border: 1px solid black !important;
+        padding: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <header class="col s12 left-align">Notepad</header>
+        <!--<img class="logo"src="">-->
+        <hr class="col s12">
+      </div>
+    </div>
+    <!--Full bar on small screens, side bar on big-->
+    <div class="container col s12 m3">
+      <div class="row">
+        <a class="waves-effect waves-light btn" onclick="addNote()">Add Note</a>
+      </div>
+    </div>
+    
+    <div class ="container col s12 m9">
+      <div id = "editor-area" class="row">
+        <!--<div id="editor-container"></div>-->
+      </div>
+    </div>
+      <footer></footer>
+    <script>
+      /* When the add button is clicked, create a new note 
+      TODO: save the previous one (only if the title has text or any content at all)
+      */
+      function addNote() {
+        
+        insertEditorContainer = "<div id=editor-container><strong>Text</strong></div>";
+        
+        document.getElementById('editor-area').innerHTML = insertEditorContainer;
+        //alert("addNote function called...");
+        
+        var quill = new Quill('#editor-container', {
+            modules: {
+              toolbar: [
+                [{ header: [1, 2, false] }],
+                ['bold', 'italic', 'underline'],
+                ['image', 'code-block']
+              ]
+            },
+            placeholder: 'Compose an epic...',
+            theme: 'snow'  // or 'bubble'
+        });
+        // Works, but gets a bunch of other useless quill editor divs around it
+        //alert(document.getElementById('editor-container').innerHTML);
+
+        // https://stackoverflow.com/questions/54835375/how-to-edit-and-save-my-html-file-using-quill
+        // returns a json object with contents of the editor
+        // will want to do a check for if an editor (with text) exists, then try to save contents
+        var content = quill.getContents();
+        alert(JSON.stringify(content));
+      }
+    </script>
+  </body>
+</html>
