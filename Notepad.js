@@ -16,22 +16,19 @@
 
 
 // TODO: Getters and setters
+// username, password, notecollection
 class User {
-    constructor(username, password, dateCreated) {
+    constructor(username, password) {
         this._username = username;
         this._password = sha256(password);
-        this.dateCreated = dateCreated;
-    }
-    get passWordHash() {
-        return(this._password);
     }
 }
 // TODO: Getters and setters
+// noteID, noteTitle, noteContent
 class Note {
-    constructor(noteID, noteName, dateCreated) {
+    constructor(noteID, noteTitle) {
         this._noteID = noteID;
-        this._noteName = noteName;
-        this._dateCreated = dateCreated;
+        this._noteTitle = noteTitle;
     }
 }
 
