@@ -1,75 +1,89 @@
 <!DOCTYPE html>
 <!--
-TODO: Dark mode
-background
-image storage handling (for inserted pics)
-viewing mode vs editing mode (viewing mode would make the top bar hidden and make the div NOT content editable)
-
-BUG: When creating a new note, and the current note has text, the current note text will
-transfer to the new note
+TODO: 
+-image storage handling (for inserted pics)-?
+-viewing mode vs editing mode (viewing mode would make the top bar hidden and make the div NOT content editable)
+-add noteCollection global variable to add and remove elements to it
+-What if instead of using onClick="loadNote(this)", the element had a static id
+sent in to the function, this way the id is freed up to be used somewhere else-?
+-Trash bin for keeping deleted notes for a set time
+-Implement Categories
+-Renaming titles and categories
+-Undo button
+  https://quilljs.com/docs/modules/history/
+  quill.history.undo();
+-Set max height of note collection and set overflow to hidden
 -->
 <html lang="en_us">
-  <head>
-    <!-- Quill: JS library -->
-        <!-- API: https://quilljs.com/docs/api/-->
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
-    <!-- Quill: CSS stylesheet -->
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<head>
+  <!-- Quill: JS library -->
+  <!-- API: https://quilljs.com/docs/api/ -->
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
-    <!-- Materialize (https://materializecss.github.io/materialize/getting-started.html) -->
-      <!-- Compiled and minified CSS -->
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0/dist/css/materialize.min.css">
+  <!-- Quill: CSS stylesheet -->
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 
-      <!-- Compiled and minified JavaScript -->
-      <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0/dist/js/materialize.min.js"></script>
-      
-    <!--When using type="module", it disallows same-origin script files
+  <!-- Materialize (https://materializecss.github.io/materialize/getting-started.html) -->
+  <!-- Compiled and minified CSS -->
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0/dist/css/materialize.min.css">
+
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0/dist/js/materialize.min.js"></script>
+
+  <!--When using type="module", it disallows same-origin script files
       https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS/Errors/CORSRequestNotHttp
-      (Basically any javascript that needs to use Quill's resources NEEDS to run in script tags in this html doc)
-      Eric says any local javascript file listed here can ALSO access other JS files listed here (need to test)
+      (Basically any javascript that needs to use Quill's resources NEEDS to run in script tags in this html doc)-??
+      -any local javascript file listed here can ALSO access other JS files listed here
     -->
-    <script src="Notepad.js"></script>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notepad</title>
-  </head>
-  <body>
+  <script src="Notepad.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notepad</title>
+</head>
 
-    <div class="container">
-      <div class ="section">
-        <div class="row">
-          <div class="col s8">
-            <h3 class="col s12 left-align">Notepad</h3>
+
+<body>
+
+  <div class="container">
+    <div class="section">
+      <div class="row">
+        <div class="col s8">
+          <h3 class="col s12 left-align">Notepad</h3>
+        </div>
+        <div class="col s4">
+          <a href="login form.html" id="loginBtn" class="waves-effect waves-light btn">Logout</a>
+        </div>
+        <hr class="col s12">
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="section">
+      <div class="row">
+        <div class="col s12 m3" style="border:1px solid gray; padding: 10px; border-radius: 5px;">
+          <a id="addBtn" class="waves-effect waves-light btn" onclick="addNote()">+</a>
+          <a id="deleteBtn" class="waves-effect waves-light btn" onclick="deleteNote()">-</a>
+
+          <!-- Note Directory -->
+          <div id="noteCollection" class="collection">
+            <a id="564743" href="#!" onclick="loadNote(this)" class="collection-item">1</a>
+            <a id="345765" href="#!" onclick="loadNote(this)" class="collection-item">2</a>
+            <a id="798532" href="#!" onclick="loadNote(this)" class="collection-item">3</a>
+            <a id="234658" href="#!" onclick="loadNote(this)" class="collection-item">4</a>
           </div>
-          <div class="col s4">
-            
-          </div>
-          <hr class="col s12">
+        </div>
+
+        <div class="col s12 m9" id="editor-area">
+          <!--Quill Editor goes here (inserted by addNote())-->
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="container">
-      <div class="section">
-        <div class="row">
-          <div class="col s3" style="border:1px solid gray; padding: 10px; border-radius: 5px;">
-            <a class="waves-effect waves-light btn" onclick="addNote()">+</a>
-            <a class="waves-effect waves-light btn" onclick="saveNote()">Save</a>
-            <!-- Note Directory -->
-            <div id= "noteCollection" class="collection">
-              <a id="564743" href="#!" onclick="loadNote(this)" class="collection-item">1</a>
-              <a id="345765" href="#!" onclick="loadNote(this)" class="collection-item">2</a>
-              <a id="798532" href="#!" onclick="loadNote(this)" class="collection-item">3</a>
-              <a id="234658" href="#!" onclick="loadNote(this)" class="collection-item">4</a>
-            </div>
-          </div>
-          <div class="col s9" id="editor-area">
-            <!--Quill Editor goes here (inserted by addNote())-->
-          </div>
-        </div>
-      </div>
-    </div>
+  <!--
     <footer class="page-footer orange">
       <div class="container">
         <div class="row">
@@ -106,133 +120,155 @@ transfer to the new note
         </div>
       </div>
     </footer>
+    -->
 
-    <script>
-      // Notes are saved here, ONLY until the next page refresh, however.
-      const saveNoteIDDictionary = {};
-      
-      /* When the add button is clicked, create a new note 
-      TODO: save the previous one (only if the title has text or any content at all)
-      */
+  <script>
+    // Notes are saved here, ONLY until the next page refresh, however.
+    const saveNoteIDDictionary = {};
 
-     // FUTURE: instead of creating an ENTIRELY new instance of quill
-     //  instead: modify it using setContents()
-
-
-        //TESTREMOVE temp add back
-        let insertEditorContainer = "<div id=editor-container></div>";
-
-        //TESTREMOVE temp add back
-        document.getElementById('editor-area').innerHTML = insertEditorContainer;
-        //alert("addNote function called...");
-        
-        var quill = new Quill('#editor-container', {
-            modules: {
-              toolbar: [
-                [{ header: [1, 2, false] }],
-                ['bold', 'italic', 'underline'],
-                ['image', 'code-block']
-              ]
-            },
-            placeholder: 'Compose an epic...',
-            theme: 'snow'  // or 'bubble'
-        });
-      // Debug settings -preset notes to empty quill editor output
-      saveNoteIDDictionary[564743] = quill.getContents();
-      saveNoteIDDictionary[345765] = quill.getContents();
-      saveNoteIDDictionary[798532] = quill.getContents();
-      saveNoteIDDictionary[234658] = quill.getContents();
-     // When adding a new note, load the editor without a note ID
-     //   Set the new note ID and save it (using saveNote(noteID))
-      function addNote() {
-        // https://stackoverflow.com/questions/54835375/how-to-edit-and-save-my-html-file-using-quill
-        // returns a json object with contents of the editor
-        // will want to do a check for if an editor (with text) exists, then try to save contents
-
-        //  LOOK INTO CREATING A LOOPING FUNCTION THAT (ON EDIT) LOADS THE CHANGES
-        //  SO THAT I CAN SAVE THEM
-        alert(quill.getContents());
-
-        // Generate newNoteID, using some scheme
-        // Check If saveNoteIDDictionary does not have this id saved
-        let newNoteID = '453556';
+    let currentActiveNote = null;
+    // Delete and Add interface buttons
+    let deleteBtn = document.getElementById("deleteBtn");
+    let addBtn = document.getElementById("addBtn");
 
 
-        saveNote(newNoteID);
+    // these two can technically just be statically set in the html above...
+    let editorContainer = "<div id=editor-container></div>";
+    document.getElementById('editor-area').innerHTML = editorContainer;
+
+    var quill = new Quill('#editor-container', {
+      modules: {
+        toolbar: [
+          [{ header: [1, 2, false] }],
+          ['bold', 'italic', 'underline'],
+          ['image', 'code-block']
+        ]
+      },
+      placeholder: 'Compose an epic...',
+      theme: 'snow'  // or 'bubble'
+    });
+    // Title-?
+    //let quillTitle = quill.addContainer('ql-editor');
+
+    // Disable quill, hide delete btn initially 
+    quill.enable(false);
+    deleteBtn.classList.add('hide');
+
+
+    // Will run whenever content is changed within the editor
+    // TODO: batch saves together-?
+    //  smarter detection of active note
+    quill.on('text-change', function (delta, oldDelta, source) {
+      if (source == 'api') {
+        console.log("An API call triggered this change.");
+      } else if (source == 'user') {
+        console.log("A user action triggered this change.");
+        let server = saveNoteIDDictionary[currentActiveNote.id];
+        saveNoteIDDictionary[currentActiveNote.id] = quill.getContents();
       }
+    });
+    // Debug settings -preset notes to empty quill editor output
+    saveNoteIDDictionary[564743] = quill.getContents();
+    saveNoteIDDictionary[345765] = quill.getContents();
+    saveNoteIDDictionary[798532] = quill.getContents();
+    saveNoteIDDictionary[234658] = quill.getContents();
 
 
-      //FUTURE: is this just supposed to be noteID (instead of the whole object)?
-      function saveNote(note) {
-        let noteID;
-        // https://flexiple.com/javascript/javascript-dictionary/
-        
-        
-        if (note == null) {
-          // Do nothing
-          noteID = (document.getElementsByClassName( 'active', 'active-note' )[0]).id;
-          alert("Save this: " + noteID);
-          //let noteID = document.getElementsByClassName( 'active', 'active-note' )[0];
-        } else {
-          noteID = note;
-          alert("Save this: " + noteID);
-        }
-        // If the note doesn't exist (its new), otherwise go directly to save the contents
-        if (saveNoteIDDictionary[noteID] == null) {
-          let addToCollection = '<a id=' + noteID + ' href="#!" onclick="loadNote(this)" class="collection-item">453556</a>';
-          document.getElementById('noteCollection').innerHTML += addToCollection;
-          quill.setText('');
-          saveNoteIDDictionary[noteID] = quill.getContents();
-        } else {
-          // Save note content data, otherwise it also initialises dictionary entry if note is new
-          // FIX: When running this, the last active note with text will be setting the new note text
-          // to the previous text
-          saveNoteIDDictionary[noteID] = quill.getContents();
-        }
 
-        
 
-        // This is/would be an ajax request, for now it is placeholder 
-        //  (not to be used anywhere except in this function)
-        let fileStorageServer = saveNoteIDDictionary[noteID];
-        setActiveNote(noteID);
+    function addNote() {
+      // https://stackoverflow.com/questions/54835375/how-to-edit-and-save-my-html-file-using-quill
+      // returns a json object with contents of the editor
+
+      // Check if the dictionary already has the generated id (mathematically improbable)
+      let newNoteID = Math.random();
+      while (saveNoteIDDictionary[newNoteID] != null) {
+        alert("Get a lottery ticket " + newNoteID);
+        newNoteID = Math.random();
       }
-        // Send in the note id to load the note
-        // (The id can be queried using the dictionary)
-        //  hash the id in the future (when creating the note)?
-      function loadNote(note) {
-        alert("Destination Note ID: " + note.id);
-        let noteID = note.id;
-        let loadSaveData = saveNoteIDDictionary[noteID];
+      let newNotePresetTitle = "New Note"
+      let addToCollection = '<a id=' + newNoteID + ' href="#!" onclick="loadNote(this)" class="collection-item">' + newNotePresetTitle + '</a>';
+      document.getElementById('noteCollection').innerHTML += addToCollection;
+      quill.setText('');
+      // Initialize the note with the generated note id
+      // TODO: create new Note object using Note class
+      saveNoteIDDictionary[newNoteID] = quill.getContents();
+
+      // Needed to set active class to the new note
+      let nextNote = document.getElementById(newNoteID);
+      setActiveNote(nextNote);
+    }
+
+    // https://www.geeksforgeeks.org/how-to-remove-an-html-element-using-javascript/
+    // TODO: implement trash bin
+    function deleteNote() {
+      let noteCollection = document.getElementById("noteCollection");
+      let noteID = currentActiveNote.id;
+      let deletion = document.getElementById(noteID);
+
+      saveNoteIDDictionary[noteID] = null;
+      //https://www.tutorialspoint.com/Remove-elements-from-a-Dictionary-using-Javascript
+      // Remove save data 
+      delete saveNoteIDDictionary[noteID];
+      currentActiveNote = null;
+      noteCollection.removeChild(deletion);
+      quill.setText('');
+      quill.enable(false);
+      deleteBtn.classList.add('hide');
+    }
 
 
-        quill.setContents(loadSaveData);
-        setActiveNote(noteID);
-      }
-      // Clear previous active note, set active note to parameter note ID
-      function setActiveNote(noteID) {
-        // https://stackoverflow.com/questions/13980982/add-class-to-html-with-javascript
-        // https://www.w3schools.com/howto/howto_js_remove_class.asp
-        // https://stackabuse.com/javascript-check-if-variable-is-a-undefined-or-null/
-        let previousActiveNote = document.getElementsByClassName( 'active', 'active-note' )[0];
-        if (previousActiveNote != null) {
-          // If there is a note currently active and displayed, set it to NOT active
-          if (previousActiveNote.id != noteID) {
-            previousActiveNote.classList.remove('active', 'active-note');
-            alert("Previous Note ID: " + previousActiveNote.id);
 
-            // Set the note that was clicked to active
-            //note.classList.add('active', 'active-note'); PREVIOUS VERSION
-            document.getElementById(noteID).classList.add('active', 'active-note');
-          } else {
-            // Do nothing
-          }
-        } else {
+
+    // Send in the note id to load the note
+    // (The id can be queried using the dictionary)
+    // combine loadNote and setActiveNote-?
+    function loadNote(nextNote) {
+      // DEBUG: alert("Destination Note ID: " + nextNote.id);
+      let nextNoteID = nextNote.id;
+      let loadSaveData = saveNoteIDDictionary[nextNoteID];
+
+      quill.setContents(loadSaveData);
+      setActiveNote(nextNote);
+    }
+
+
+    // Clear previous active note, set active note to parameter note ID
+    function setActiveNote(nextNote) {
+      // https://stackoverflow.com/questions/13980982/add-class-to-html-with-javascript
+      // https://www.w3schools.com/howto/howto_js_remove_class.asp
+      // https://stackabuse.com/javascript-check-if-variable-is-a-undefined-or-null/
+
+
+
+      let nextNoteID = nextNote.id;
+
+      // Set the note that was clicked to active (if there was a previous active note)
+      if (currentActiveNote != null) {
+        let currentActiveNoteID = currentActiveNote.id;
+        // If there is a note currently active and displayed, set it to NOT active
+        if (currentActiveNoteID != nextNoteID) {
+          document.getElementById(currentActiveNoteID).classList.remove('active', 'active-note');
+          // DEBUG: alert("Previous Note ID: " + currentActiveNoteID);
+
           // Set the note that was clicked to active
-          //note.classList.add('active', 'active-note'); PREVIOUS VERSION
-          document.getElementById(noteID).classList.add('active', 'active-note');
+          currentActiveNote = nextNote;
+          document.getElementById(nextNoteID).classList.add('active', 'active-note');
+        } else {
+          // Do nothing (the current active note is the same as the destination)
+          // (Basically the user just clicked on the already active note)
         }
+      } else {
+        // Set the note that was clicked to active (if there was no previous active note)
+        currentActiveNote = nextNote;
+        document.getElementById(nextNoteID).classList.add('active', 'active-note');
       }
-    </script>
-  </body>
+      quill.enable(true);
+      deleteBtn.classList.remove('hide');
+    }
+  </script>
+
+
+</body>
+
 </html>
