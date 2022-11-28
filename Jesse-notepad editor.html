@@ -13,10 +13,14 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
   https://quilljs.com/docs/modules/history/
   quill.history.undo();
 -Set max height of note collection and set overflow to hidden
+-make container width on desktop less restrictive
 -->
 <html lang="en_us">
 
 <head>
+  <!-- JQUERY -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+
   <!-- Quill: JS library -->
   <!-- API: https://quilljs.com/docs/api/ -->
   <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
@@ -32,6 +36,9 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
   <!-- Compiled and minified JavaScript -->
   <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0/dist/js/materialize.min.js"></script>
 
+  <!-- Material Icons by Google -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
   <!--When using type="module", it disallows same-origin script files
       https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS/Errors/CORSRequestNotHttp
       (Basically any javascript that needs to use Quill's resources NEEDS to run in script tags in this html doc)-??
@@ -46,73 +53,87 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
 
 <body>
 
-  <div class="container">
-    <div class="section">
-      <div class="row">
-        <div class="col s8">
-          <h3 class="col s12 left-align">Notepad</h3>
-        </div>
-        <div class="col s4">
-          <a href="login form.html" id="loginBtn" class="waves-effect waves-light btn">Logout</a>
-        </div>
-        <hr class="col s12">
+  <header>
+
+    <nav>
+      <div class="nav-wrapper blue lighten-5">
+
+        <!-- Sidebar for notes when the screen size is phone or tablet sized -->
+        <a id="sidebarBtn" href="#" data-target="slide-out" class="pulse sidenav-trigger btn hide-on-large-only">
+          <i class="material-icons">menu</i>
+        </a>
+
+        <!-- Logo -->
+        <a href="#" class="left brand-logo grey-text text-darken-3">Notepad</a>
+
+        <!-- Temp style tag for fix of materializecss class -->
+        <style>
+          .brand-logo {
+            position: relative !important;
+          }
+        </style>
+
+        <!-- Dropdown Trigger -->
+        <a class='dropdown-trigger btn-flat right' href='#' data-target='dropdown1'>
+          <i class="material-icons">person</i>
+        </a>
+
+        <!-- Dropdown Structure -->
+        <ul id='dropdown1' class='dropdown-content'>
+          <li><a href="login form.html">Logout</a></li>
+        </ul>
+
       </div>
-    </div>
-  </div>
+    </nav>
+
+  </header>
 
   <div class="container">
     <div class="section">
       <div class="row">
-        <div class="col s12 m3" style="border:1px solid gray; padding: 10px; border-radius: 5px;">
-          <a id="addBtn" class="waves-effect waves-light btn" onclick="addNote()">+</a>
-          <a id="deleteBtn" class="waves-effect waves-light btn" onclick="deleteNote()">-</a>
 
-          <!-- Note Directory -->
-          <div id="noteCollection" class="collection">
-            <a id="564743" href="#!" onclick="loadNote(this)" class="collection-item">1</a>
-            <a id="345765" href="#!" onclick="loadNote(this)" class="collection-item">2</a>
-            <a id="798532" href="#!" onclick="loadNote(this)" class="collection-item">3</a>
-            <a id="234658" href="#!" onclick="loadNote(this)" class="collection-item">4</a>
+        <div id="sidebar-on-small-med" class="scale-transition scale-out">
+
+          <div class="col s12 l3" style="border:1px solid gray; padding: 10px; border-radius: 5px;">
+            <a id="addBtn" class="waves-effect waves-light btn" onclick="addNote()">+</a>
+            <a id="deleteBtn" class="waves-effect waves-light btn" onclick="deleteNote()">-</a>
+            <div class="input-field">
+              <input id="search" type="search" class="validate">
+              <label for="search">Search</label>
+            </div>
+            <!-- Note Directory -->
+            <div id="noteCollection" class="collection">
+              <a id="564743" href="#!" onclick="loadNote(this)" class="collection-item">Example 1</a>
+              <a id="345765" href="#!" onclick="loadNote(this)" class="collection-item">Example 2</a>
+              <a id="798532" href="#!" onclick="loadNote(this)" class="collection-item">Example 3</a>
+              <a id="234658" href="#!" onclick="loadNote(this)" class="collection-item">Example 4</a>
+            </div>
+          </div>
+
+        </div>
+
+
+
+        <div class="col s12 l9" id="note-contents">
+          <div class="input-field">
+            <input id="title" type="search">
+            <label for="title">Title</label>
+          </div>
+          <div id="editor-area">
+            <div id=editor-container>
+              <!--Quill Editor goes here (inserted by addNote function)-->
+            </div>
           </div>
         </div>
-
-        <div class="col s12 m9" id="editor-area">
-          <!--Quill Editor goes here (inserted by addNote())-->
-        </div>
       </div>
+      <!--end of row-->
     </div>
+    <!--end of section-->
   </div>
+  <!--end of container-->
 
   <!--
     <footer class="page-footer orange">
-      <div class="container">
-        <div class="row">
-          <div class="col l6 s12">
-            <h5>Notepad</h5>
-            <p>
-              Notepad
-            </p>
-          </div>
-          <div class="col l3 s12">
-            <h5>Settings</h5>
-            <ul>
-              <li><a href="#!">Link 1</a></li>
-              <li><a href="#!">Link 2</a></li>
-              <li><a href="#!">Link 3</a></li>
-              <li><a href="#!">Link 4</a></li>
-            </ul>
-          </div>
-          <div class="col l3 s12">
-            <h5>Connect</h5>
-            <ul>
-              <li><a href="#!">Link 1</a></li>
-              <li><a href="#!">Link 2</a></li>
-              <li><a href="#!">Link 3</a></li>
-              <li><a href="#!">Link 4</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
       <div class="footer-copyright">
         <div class="container">
           Made by
@@ -120,22 +141,78 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
         </div>
       </div>
     </footer>
-    -->
+  -->
 
+    <!-- Temp Style -->
+  <style>
+    @media only screen and (min-width: 993px) {
+    .container {
+      width: 90%;
+    }
+  }
+  </style>
   <script>
+    // https://stackoverflow.com/questions/30710114/dynamic-javascript-when-changing-screen-size
+    function resize() {
+      // https://stackoverflow.com/questions/10180782/jquery-resize-using-browser-maximise-button
+      // Set small delay to run the resize op, NEEDED
+      //setTimeout(function () {
+      if ($(window).width() <= 993) {
+        $("#sidebar-on-small-med").attr("id", "slide-out");
+        $("#slide-out").removeClass("scale-transition");
+        $("#slide-out").addClass("sidenav");
+        // Initialize M-CSS Sidenav
+        $(document).ready(function () {
+          $('.sidenav').sidenav({
+            // specify options here
+          });
+        });
+        // If the device is small (phone), set sidenav width to 70% of screen
+        // otherwise if it is medium sized, set width to 50%
+        if ($(window).width() <= 600) {
+          $('#slide-out').css("width", "70%");
+        } else {
+          $('#slide-out').css("width", "50%");
+        }
+      }
+      else {
+        $("#slide-out").attr("id", "sidebar-on-small-med");
+        $("#sidebar-on-small-med").removeClass("sidenav")
+        $('#sidebar-on-small-med').css("width", "100%");
+        // When clicking the sidenav btn, and then switching screen sizes, the transform animation sticks and we need to unset it to have it show again
+        $('#sidebar-on-small-med').css("transform", "");
+        $("#sidebar-on-small-med").addClass("scale-transition");
+        $("#sidebar-on-small-med").addClass("scale-in");
+      }
+      //}, 100);
+    }
+    $(window).on("resize", resize);
+    resize(); // call once initially
+
+    // Initialize dropdown
+    $(document).ready(function () {
+      $('.dropdown-trigger').dropdown({
+        // specify options here
+      });
+    });
+
+
+
+
     // Notes are saved here, ONLY until the next page refresh, however.
+    // Query using ajax, the server using the user id to get the contents of the notes
     const saveNoteIDDictionary = {};
-    
+
+    // Initialize currentActiveNote (basically no note is selected on page load)
     let currentActiveNote = null;
     // Delete and Add interface buttons
     let deleteBtn = document.getElementById("deleteBtn");
     let addBtn = document.getElementById("addBtn");
 
+    // Side bar button when screen size is phone or tablet sized
+    let sideBar = $('#sidebarBtn');
 
-    // these two can technically just be statically set in the html above...
-    let editorContainer = "<div id=editor-container></div>";
-    document.getElementById('editor-area').innerHTML = editorContainer;
-
+    // Create quill editor, put it in the editor-container, it will create another element above it in the editor-area div
     var quill = new Quill('#editor-container', {
       modules: {
         toolbar: [
@@ -148,7 +225,7 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
       theme: 'snow'  // or 'bubble'
     });
     // Title-?
-    //let quillTitle = quill.addContainer('ql-editor');
+    let quillTitle = quill.addContainer('ql-editor');
 
     // Disable quill, hide delete btn initially 
     quill.enable(false);
@@ -172,6 +249,18 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
     saveNoteIDDictionary[345765] = quill.getContents();
     saveNoteIDDictionary[798532] = quill.getContents();
     saveNoteIDDictionary[234658] = quill.getContents();
+
+
+    // https://www.w3schools.com/jquery/tryit.asp?filename=tryjquery_filters_anything
+    $(document).ready(function () {
+      $("#search").on("keyup", function () {
+        var value = $(this).val().toLowerCase();
+        $("#noteCollection *").filter(function () {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+    });
+
 
 
 
@@ -215,6 +304,9 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
       quill.setText('');
       quill.enable(false);
       deleteBtn.classList.add('hide');
+
+      // Enable the pulse effect
+      sideBar.addClass("pulse");
     }
 
 
@@ -226,10 +318,14 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
     function loadNote(nextNote) {
       // DEBUG: alert("Destination Note ID: " + nextNote.id);
       let nextNoteID = nextNote.id;
+
+      // Get the saved contents of the note from the dictionary
       let loadSaveData = saveNoteIDDictionary[nextNoteID];
 
       quill.setContents(loadSaveData);
       setActiveNote(nextNote);
+
+      
     }
 
 
@@ -265,6 +361,9 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
       }
       quill.enable(true);
       deleteBtn.classList.remove('hide');
+      
+      // Disable the pulse effect
+      sideBar.removeClass("pulse");
     }
   </script>
 
