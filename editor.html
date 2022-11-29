@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<!--
+TODO: 
+-image storage handling (for inserted pics)-?
+
+-viewing mode vs editing mode (viewing mode would make the top bar hidden and make the div NOT content editable)
+
+-add noteCollection global variable to add and remove elements to it
+
+-What if instead of using onClick="loadNote(this)", the element had a static id
+sent in to the function, this way the id is freed up to be used somewhere else-?
+
+-Trash bin for keeping deleted notes for a set time
+
+-Implement Categories
+
+-Renaming titles and categories
+
+-Undo button
+  https://quilljs.com/docs/modules/history/
+  quill.history.undo();
+
+-Set max height of note collection and set overflow to hidden
+
+-make container width on desktop less restrictive (maybe done...)
+
+-Expand note collection item on hover if the title is too long (or add character limit)
+
+-Make note list items draggable
+
+-Make Newly created notes have a tag on the button
+--(<span class="right"><i class="material-icons">fiber_new</i></span>) -> contained within the a tag
+
+-Have new notes be able to be created by setting a title and hitting a button that pops up 
+--(basically when a note isnt selected, when a title is entered in the title bar a button should show up next to it to create a new note with that title)
+
+
+-->
+<html lang="en_us">
+
+<head>
+  <!-- JQUERY -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+
+  <!-- Quill: JS library -->
+  <!-- API: https://quilljs.com/docs/api/ -->
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+  <!-- Quill: CSS stylesheet -->
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+  <!-- Materialize (https://materializecss.github.io/materialize/getting-started.html) -->
+  <!-- Compiled and minified CSS -->
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0/dist/css/materialize.min.css">
+
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@1.1.0/dist/js/materialize.min.js"></script>
+
+  <!-- Material Icons by Google -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <!--When using type="module", it disallows same-origin script files
+      https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS/Errors/CORSRequestNotHttp
+      (Basically any javascript that needs to use Quill's resources NEEDS to run in script tags in this html doc)-??
+      -any local javascript file listed here can ALSO access other JS files listed here
+    -->
+  <script src="Notepad.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notepad</title>
+</head>
+
+
+<body>
+
+  <header>
+
+    <nav>
+      <div class="nav-wrapper blue lighten-5">
+
+        <!-- Sidebar for notes when the screen size is phone or tablet sized -->
+        <a id="sidebarBtn" href="#" data-target="slide-out" class="pulse sidenav-trigger btn hide-on-large-only">
+          <i class="material-icons">menu</i>
+        </a>
+
+        <!-- Logo -->
+        <a href="#" class="left brand-logo grey-text text-darken-3">Notepad</a>
+
+
+
+        <!-- Dropdown Trigger -->
+        <a class='dropdown-trigger btn-flat right' href='#' data-target='dropdown1'>
+          <i class="material-icons">person</i>
+        </a>
+
+        <!-- Dropdown Structure -->
+        <ul id='dropdown1' class='dropdown-content'>
+          <li><a href="login form.html">Logout</a></li>
+        </ul>
+
+      </div>
+    </nav>
+
+  </header>
+
+  <div class="container">
+    <div class="section">
+      <div class="row">
+
+
+        <div id="sidebar-on-small-med" class="scale-transition scale-out">
+
+          <div id="sidebar" class="col s12 l3 z-depth-2 hoverable">
+            <a id="addBtn" class="waves-effect waves-light btn" onclick="addNote()">+</a>
+            <a id="deleteBtn" class="waves-effect waves-light btn" onclick="deleteNote()">-</a>
+            <div class="input-field">
+              <input id="search" type="search" class="validate">
+              <label for="search">Search</label>
+            </div>
+            <!-- Note Directory -->
+            <div id="noteCollection" class="collection">
+              <a id="564743" href="#!" onclick="loadNote(this)" class="collection-item">Example 1</a>
+              <a id="345765" href="#!" onclick="loadNote(this)" class="collection-item">Example 2</a>
+              <a id="798532" href="#!" onclick="loadNote(this)" class="collection-item">Example 3</a>
+              <a id="234658" href="#!" onclick="loadNote(this)" class="collection-item">Example 4</a>
+            </div>
+          </div>
+
+        </div>
+
+
+
+        <div class="col s12 l9" id="note-contents">
+          <div class="input-field">
+            <input id="title" type="search">
+            <label for="title">Title</label>
+          </div>
+          <div id="editor-area">
+            <div id=editor-container>
+              <!--Quill Editor goes here (inserted by addNote function)-->
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <!--end of row-->
+    </div>
+    <!--end of section-->
+  </div>
+  <!--end of container-->
+
+  <!--
+    <footer class="page-footer orange">
+      <div class="footer-copyright">
+        <div class="container">
+          Made by
+          <a class="us" href="https://materializecss.github.io/materialize" target="_blank" rel="noopener noreferrer">Materialize</a>
+        </div>
+      </div>
+    </footer>
+  -->
+
+  <!-- Temp Style -->
+  <style>
+    @media only screen and (min-width: 993px) {
+      .container {
+        width: 90%;
+      }
+
+    }
+
+    /* Set position from absolute default to relative of materializecss class*/
+    .brand-logo {
+      position: relative !important;
+    }
+
+    /* Set border radius of the quill text editor */
+    .ql-toolbar.ql-snow {
+      border-top-left-radius: 2px !important;
+      border-top-right-radius: 2px !important;
+    }
+
+    .ql-container.ql-snow {
+      border-bottom-left-radius: 2px !important;
+      border-bottom-right-radius: 2px !important;
+    }
+
+    #sidebar {
+      border: 1px solid #e3f2fd;
+      padding: 5px;
+      border-radius: 2px;
+    }
+  </style>
+  <script>
+    // https://stackoverflow.com/questions/30710114/dynamic-javascript-when-changing-screen-size
+    // A LOT of this could be mitigated by just using two different versions of the note collection list (One for phone/tablet and one for Desktop) 
+    //  This would make it more accessible for theming purposes for instance
+
+    // When the browser window is resized make changes to how the website is laid out
+    //  -When the browser window width is <= 993 pixels (Phone and Tablet)
+    //    --Change the note collection to be wrapped into a side bar by changing the id from 'sidebar-on-small-med' to 'slide-out'
+    //    --Remove the scale-transition and scale-in classes
+    //    --Initialize the javascript responsible for the operation of the sidenav
+    //
+    //    --If the browser window width is > 600, change sidenav width of screen to 50% (Phone), otherwise set it to 70% (Tablet).
+    //
+    //  -Else (Desktop sized window)
+    //    --Get rid of the sidenav instance if it exists 
+    //    ---(This is done because if the sidenav was open when you maximize the page, and it changes from Phone/Tablet sized to Desktop sized in the process, it will hide the note collection)
+    //    --Change the note collection from a side nav to always shown by changing the id from 'slide-out' to 'sidebar-on-small-med'
+    //    --Add the scale-transition and scale-in classes
+    //    --Remove the sidenav class
+    //    --Set width to 100% of container (to undo the width changes for the sidenav)
+    //    --Remove transform op (When clicking the sidenav btn, and then switching screen sizes ie: phone to desktop size, the transform animation sticks and we need to unset it to have it show again)
+    function resize() {
+      // https://stackoverflow.com/questions/10180782/jquery-resize-using-browser-maximise-button
+      // Set small delay to run the resize op, NEEDED
+      setTimeout(function () {
+        if ($(window).width() <= 993) {
+          $("#sidebar-on-small-med").attr("id", "slide-out");
+          $("#slide-out").removeClass("scale-transition");
+          $("#slide-out").removeClass("scale-in");
+          $("#slide-out").addClass("sidenav");
+
+          // Initialize M-CSS Sidenav
+          $(document).ready(function () {
+            $('.sidenav').sidenav({
+              // specify options here
+            });
+          });
+
+          // If the device is small (phone), set sidenav width to 70% of screen
+          // otherwise if it is medium sized, set width to 50%
+          if ($(window).width() > 600) {
+            $('#slide-out').css("width", "50%");
+          } else {
+            $('#slide-out').css("width", "70%");
+          }
+        }
+        else {
+          $('.sidenav').sidenav('destroy');
+          $("#slide-out").attr("id", "sidebar-on-small-med");
+          $("#sidebar-on-small-med").addClass("scale-transition");
+          $("#sidebar-on-small-med").addClass("scale-in");
+          $("#sidebar-on-small-med").removeClass("sidenav");
+
+          // Set width to 100% of container (to undo the width changes for the sidenav)
+          $('#sidebar-on-small-med').css("width", "100%");
+          // When clicking the sidenav btn, and then switching screen sizes, the transform animation sticks and we need to unset it to have it show again
+          $('#sidebar-on-small-med').css("transform", "");
+
+        }
+      }, 100);
+    }
+    $(window).on("resize", resize);
+    resize(); // call once initially
+
+    // Initialize dropdown
+    $(document).ready(function () {
+      $('.dropdown-trigger').dropdown({
+        // specify options here
+      });
+    });
+
+
+
+
+    // Notes are saved here, ONLY until the next page refresh, however.
+    // Query, using ajax, the server using the user id to get the contents (and Title-?) of the notes
+    const saveNoteIDDictionary = {};
+
+
+
+    // Initialize currentActiveNote (basically no note is selected on page load)
+    let currentActiveNote = null;
+    // Delete and Add interface buttons
+    let deleteBtn = $('#deleteBtn');
+    let addBtn = document.getElementById("addBtn");
+
+    let titleInput = $('#title');
+    let noteCollection = $('#noteCollection');
+
+    // Side bar button when screen size is phone or tablet sized
+    let sidebarBtn = $('#sidebarBtn');
+
+
+
+    // For saving
+    var Delta = Quill.import('delta');
+    // Create quill editor, put it in the editor-container, it will create another element above it in the editor-area div
+    var quill = new Quill('#editor-container', {
+      modules: {
+        toolbar: [
+          [{ header: [1, 2, false] }],
+          ['bold', 'italic', 'underline'],
+          ['image', 'code-block']
+        ]
+      },
+      placeholder: 'Your thoughts...',
+      theme: 'snow'  // or 'bubble'
+    });
+    // Title-?
+    //let quillTitle = quill.addContainer('ql-editor');
+
+    // Disable quill, hide delete btn initially 
+    disableEditor();
+
+
+
+
+
+
+    // Will run whenever content is changed within the editor
+    let previousNote;
+    let currentTime;
+    let noteContent;
+    let autoSaveTimeout;
+    quill.on('text-change', function (delta, oldDelta, source) {
+      if (source == 'api') {
+        console.log("An API call triggered this change.");
+      } else if (source == 'user') {
+        currentTime = new Date();
+        console.log("A user action triggered this change.");
+
+
+        noteContent = saveNoteIDDictionary[currentActiveNote.id];
+
+        if (autoSaveTimeout == null) {
+          autoSaveTimeout = setTimeout(autoSave, 7000, noteContent, currentTime);
+        }
+
+        //let autoSaveInterval = setInterval(autoSave(saveNoteIDDictionary[currentActiveNote.id],currentTime), 10000);
+        save(noteContent, currentTime, autoSaveTimeout);
+
+
+        saveNoteIDDictionary[currentActiveNote.id] = quill.getContents();
+        previousNoteID = currentActiveNote.id;
+      }
+    });
+
+    let lastSaveTime = null;
+    let lastEditTime = null;
+    function autoSave(noteContent, currentTime) {
+      // ajax goes here
+      console.log("Saved!");
+      lastSaveTime = currentTime;
+    }
+    // ONLY save when the last saved time is 5 or more seconds ago AND when the time between keypress is greater than 1 second
+    function save(noteContent, currentTime, autoSaveTimeout) {
+
+      if (lastEditTime == null) {
+        lastEditTime = currentTime;
+        clearTimeout(autoSaveTimeout);
+        autoSave(noteContent, currentTime);
+        return;
+      }
+      if (lastEditTime < (currentTime - 1000)) {
+        if (lastSaveTime == null || lastSaveTime < (currentTime - 5000)) {
+          clearTimeout(autoSaveTimeout);
+          autoSave(noteContent, currentTime);
+        }
+      }
+
+      lastEditTime = currentTime;
+    }
+
+    // Save data before leaving
+    window.onbeforeunload = function () {
+      autoSave(noteContent, currentTime);
+    }
+
+
+
+
+    // https://www.w3docs.com/learn-javascript/mutation-observer.html
+    /* NOT FOR LISTENING TO ADDED TEXT IN INPUTS : https://stackoverflow.com/questions/32383349/detect-input-value-change-with-mutationobserver*/
+    let noteCollectionObserver = new MutationObserver(mutationRecords => {
+      console.log("Changed selected note, saving changes...");
+      autoSave(noteContent, currentTime);
+    });
+
+    let noteCollectionTemp = document.getElementById('noteCollection');
+    // observe everything except attributes
+    noteCollectionObserver.observe(noteCollectionTemp, {
+      attributes: true,
+      childList: true, // observe direct children
+      subtree: true, // lower descendants too
+      characterData: true,
+    });
+
+    /* using jquery
+    function notify() {
+      alert("clicked");
+    }
+    noteCollection.on("click", notify);
+    */
+
+
+
+    // Debug settings -preset notes to empty quill editor output
+    saveNoteIDDictionary[564743] = quill.getContents();
+    saveNoteIDDictionary[345765] = quill.getContents();
+    saveNoteIDDictionary[798532] = quill.getContents();
+    saveNoteIDDictionary[234658] = quill.getContents();
+
+
+    // https://www.w3schools.com/jquery/tryit.asp?filename=tryjquery_filters_anything
+    // Search box
+    $(document).ready(function () {
+      $("#search").on("keyup", function () {
+        var value = $(this).val().toLowerCase();
+        $("#noteCollection *").filter(function () {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+    });
+
+    //////////////////////////
+    // Enabling the Editor
+    function disableEditor() {
+      quill.setText('');
+
+      quill.enable(false);
+      titleInput.prop('disabled', true);
+
+      deleteBtn.addClass('hide');
+
+      // Enable the pulse effect
+      sidebarBtn.addClass("pulse");
+      $('#note-contents').css("opacity","0.5");
+      $('#sidebar').addClass("z-depth-2");
+    }
+    // Disabling the Editor
+    function enableEditor() {
+      quill.enable(true);
+      titleInput.prop('disabled', false);
+
+      deleteBtn.removeClass('hide');
+
+      // Disable the pulse effect
+      sidebarBtn.removeClass("pulse");
+
+      $('#note-contents').css("opacity","");
+      $('#sidebar').removeClass("z-depth-2");
+    }
+    //////////////////////////
+
+    function addNote() {
+      // https://stackoverflow.com/questions/54835375/how-to-edit-and-save-my-html-file-using-quill
+      // returns a json object with contents of the editor
+
+      // Check if the dictionary already has the generated id (mathematically improbable)
+      let newNoteID = Math.random();
+      while (saveNoteIDDictionary[newNoteID] != null) {
+        alert("Buy a lottery ticket " + newNoteID);
+        newNoteID = Math.random();
+      }
+      let newNotePresetTitle = "New Note"
+      let addToCollection = noteCollection.html() + '<a id=' + newNoteID + ' href="#!" onclick="loadNote(this)" class="collection-item">' + newNotePresetTitle + '</a>';
+      noteCollection.html(addToCollection);
+
+      quill.setText('');
+      // Initialize the note with the generated note id
+      // TODO: create new Note object using Note class
+      saveNoteIDDictionary[newNoteID] = quill.getContents();
+
+      // Needed to set active class to the new note
+      let nextNote = document.getElementById(newNoteID);
+      setActiveNote(nextNote);
+    }
+    
+    // https://www.geeksforgeeks.org/how-to-remove-an-html-element-using-javascript/
+    // TODO: implement trash bin
+    function deleteNote() {
+      //let noteCollection = document.getElementById("noteCollection");
+      let noteID = currentActiveNote.id;
+      //let deletion = '#' + noteID; for the jquery version of remove
+      let deletion = document.getElementById(noteID);
+      
+      // Remove save data 
+      saveNoteIDDictionary[noteID] = null;
+      //https://www.tutorialspoint.com/Remove-elements-from-a-Dictionary-using-Javascript
+      // Remove id from dictionary
+      delete saveNoteIDDictionary[noteID];
+
+      currentActiveNote = null;
+      //noteCollection.removeChild(deletion);
+      document.getElementById("noteCollection").removeChild(deletion);
+      //$('a').remove(deletion); Doesn't work for newly added notes-?
+      disableEditor();
+    }
+
+
+
+
+    // Send in the note id to load the note
+    // (The id can be queried using the dictionary)
+    // combine loadNote and setActiveNote-?
+    function loadNote(nextNote) {
+      // DEBUG: alert("Destination Note ID: " + nextNote.id);
+      let nextNoteID = nextNote.id;
+
+      // Get the saved contents of the note from the dictionary
+      let loadSaveData = saveNoteIDDictionary[nextNoteID];
+
+      quill.setContents(loadSaveData);
+      setActiveNote(nextNote);
+
+
+    }
+
+
+    // Clear previous active note, set active note to parameter note ID
+    function setActiveNote(nextNote) {
+      // https://stackoverflow.com/questions/13980982/add-class-to-html-with-javascript
+      // https://www.w3schools.com/howto/howto_js_remove_class.asp
+      // https://stackabuse.com/javascript-check-if-variable-is-a-undefined-or-null/
+
+
+
+      let nextNoteID = nextNote.id;
+
+      // Set the note that was clicked to active (if there was a previous active note)
+      if (currentActiveNote != null) {
+        let currentActiveNoteID = currentActiveNote.id;
+        // If there is a note currently active and displayed, set it to NOT active
+        if (currentActiveNoteID != nextNoteID) {
+          document.getElementById(currentActiveNoteID).classList.remove('active', 'active-note');
+          // DEBUG: alert("Previous Note ID: " + currentActiveNoteID);
+
+          // Set the note that was clicked to active
+          currentActiveNote = nextNote;
+          document.getElementById(nextNoteID).classList.add('active', 'active-note');
+        } else {
+          // Do nothing (the current active note is the same as the destination)
+          // (Basically the user just clicked on the already active note)
+        }
+      } else {
+        // Set the note that was clicked to active (if there was no previous active note)
+        currentActiveNote = nextNote;
+        document.getElementById(nextNoteID).classList.add('active', 'active-note');
+      }
+      enableEditor();
+    }
+  </script>
+
+
+</body>
+
+</html>
