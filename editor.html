@@ -80,7 +80,7 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
       <div class="nav-wrapper blue lighten-5">
 
         <!-- Sidebar for notes when the screen size is phone or tablet sized -->
-        <a id="sidebarBtn" href="#" data-target="slide-out" class="pulse sidenav-trigger btn hide-on-large-only">
+        <a id="sidebarBtn" href="#" data-target="sidenav-container" class="pulse sidenav-trigger btn hide-on-large-only">
           <i class="material-icons">menu</i>
         </a>
 
@@ -109,11 +109,16 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
       <div class="row">
 
 
-        <div id="sidebar-on-small-med" class="scale-transition scale-out">
+        <div id="sidenav-container" class="col l3 scale-transition scale-out">
 
-          <div id="sidebar" class="col s12 l3 z-depth-2 hoverable">
-            <a id="addBtn" class="waves-effect waves-light btn" onclick="addNote()">+</a>
-            <a id="deleteBtn" class="waves-effect waves-light btn" onclick="deleteNote()">-</a>
+          <div id="sidebar">
+            <!-- Add Note Button -->
+            <a id="addBtn" class="waves-effect waves-light btn" onclick="addNote()"><i
+                class="material-icons">add</i></a>
+            <!-- Delete Note Button (visible only when a note is selected) -->
+            <a id="deleteBtn" class="waves-effect waves-light btn" onclick="deleteNote()"><i
+                class="material-icons">remove</i></a>
+            <!-- Search for Notes based on Title -->
             <div class="input-field">
               <input id="search" type="search" class="validate">
               <label for="search">Search</label>
@@ -151,7 +156,7 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
   <!--end of container-->
 
   <!--
-    <footer class="page-footer orange">
+    <footer class="page-footer light-blue">
       <div class="footer-copyright">
         <div class="container">
           Made by
@@ -190,9 +195,16 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
       border: 1px solid #e3f2fd;
       padding: 5px;
       border-radius: 2px;
+
+    }
+
+    #noteCollection {
+      overflow: scroll;
+      max-height: 62vh;
     }
   </style>
   <script>
+    //window.location.href = 'login form.html';
     // https://stackoverflow.com/questions/30710114/dynamic-javascript-when-changing-screen-size
     // A LOT of this could be mitigated by just using two different versions of the note collection list (One for phone/tablet and one for Desktop) 
     //  This would make it more accessible for theming purposes for instance
@@ -215,13 +227,18 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
     //    --Remove transform op (When clicking the sidenav btn, and then switching screen sizes ie: phone to desktop size, the transform animation sticks and we need to unset it to have it show again)
     function resize() {
       // https://stackoverflow.com/questions/10180782/jquery-resize-using-browser-maximise-button
-      // Set small delay to run the resize op, NEEDED
+      // Set small delay, NEEDED to fix an otherwise unfixable interaction with the browser
       setTimeout(function () {
+        // If the browser window width is small (phone) or medium (tablet)
         if ($(window).width() <= 993) {
-          $("#sidebar-on-small-med").attr("id", "slide-out");
-          $("#slide-out").removeClass("scale-transition");
-          $("#slide-out").removeClass("scale-in");
-          $("#slide-out").addClass("sidenav");
+          // Remove animation
+          $("#sidenav-container").removeClass("scale-transition");
+          $("#sidenav-container").removeClass("scale-in");
+          // Sidenav class forinteraction with MCSS
+          $("#sidenav-container").addClass("sidenav");
+          // Remove dropshadow
+          $('#sidebar').removeClass("z-depth-1");
+          $('#sidebar').removeClass("hoverable");
 
           // Initialize M-CSS Sidenav
           $(document).ready(function () {
@@ -231,30 +248,37 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
           });
 
           // If the device is small (phone), set sidenav width to 70% of screen
-          // otherwise if it is medium sized, set width to 50%
+          // otherwise if it is medium (tablet), set width to 50%
           if ($(window).width() > 600) {
-            $('#slide-out').css("width", "50%");
+            $('#sidenav-container').css("width", "50%");
           } else {
-            $('#slide-out').css("width", "70%");
+            $('#sidenav-container').css("width", "70%");
           }
         }
+        // Else the browser window width is large (desktop/laptop)
         else {
+          // Delete javascript/jquery sidenav instance
           $('.sidenav').sidenav('destroy');
-          $("#slide-out").attr("id", "sidebar-on-small-med");
-          $("#sidebar-on-small-med").addClass("scale-transition");
-          $("#sidebar-on-small-med").addClass("scale-in");
-          $("#sidebar-on-small-med").removeClass("sidenav");
+          // Add animation
+          $("#sidenav-container").addClass("scale-transition");
+          $("#sidenav-container").addClass("scale-in");
+          $("#sidenav-container").removeClass("sidenav");
+          // Add dropshadow effect
+          $('#sidebar').addClass("z-depth-1");
+          $('#sidebar').addClass("hoverable");
 
           // Set width to 100% of container (to undo the width changes for the sidenav)
-          $('#sidebar-on-small-med').css("width", "100%");
+          $('#sidenav-container').css("width", "");
           // When clicking the sidenav btn, and then switching screen sizes, the transform animation sticks and we need to unset it to have it show again
-          $('#sidebar-on-small-med').css("transform", "");
+          $('#sidenav-container').css("transform", "");
 
         }
       }, 100);
     }
+    // When the browser resizes, call the resize function
     $(window).on("resize", resize);
-    resize(); // call once initially
+    // Call the resize function initially to set proper classes for the initial screen size
+    resize(); 
 
     // Initialize dropdown
     $(document).ready(function () {
@@ -274,11 +298,12 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
 
     // Initialize currentActiveNote (basically no note is selected on page load)
     let currentActiveNote = null;
-    // Delete and Add interface buttons
+    // Delete and Add interface button objects
     let deleteBtn = $('#deleteBtn');
     let addBtn = document.getElementById("addBtn");
-
+    // Title input object
     let titleInput = $('#title');
+    // Note list object
     let noteCollection = $('#noteCollection');
 
     // Side bar button when screen size is phone or tablet sized
@@ -428,8 +453,8 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
 
       // Enable the pulse effect
       sidebarBtn.addClass("pulse");
-      $('#note-contents').css("opacity","0.5");
-      $('#sidebar').addClass("z-depth-2");
+      $('#note-contents').css("opacity", "0.5");
+      $('#sidebar').addClass("z-depth-1");
     }
     // Disabling the Editor
     function enableEditor() {
@@ -441,21 +466,27 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
       // Disable the pulse effect
       sidebarBtn.removeClass("pulse");
 
-      $('#note-contents').css("opacity","");
-      $('#sidebar').removeClass("z-depth-2");
+      $('#note-contents').css("opacity", "");
+      $('#sidebar').removeClass("z-depth-1");
     }
     //////////////////////////
+
+
+    function generateNoteID() {
+      // Check if the dictionary already has the generated id (mathematically improbable)
+      let newNoteID = Math.random();
+      while (saveNoteIDDictionary[newNoteID] != null) {
+        //alert("Buy a lottery ticket " + newNoteID);
+        newNoteID = Math.random();
+      }
+      return newNoteID;
+    }
 
     function addNote() {
       // https://stackoverflow.com/questions/54835375/how-to-edit-and-save-my-html-file-using-quill
       // returns a json object with contents of the editor
 
-      // Check if the dictionary already has the generated id (mathematically improbable)
-      let newNoteID = Math.random();
-      while (saveNoteIDDictionary[newNoteID] != null) {
-        alert("Buy a lottery ticket " + newNoteID);
-        newNoteID = Math.random();
-      }
+      newNoteID = generateNoteID();
       let newNotePresetTitle = "New Note"
       let addToCollection = noteCollection.html() + '<a id=' + newNoteID + ' href="#!" onclick="loadNote(this)" class="collection-item">' + newNotePresetTitle + '</a>';
       noteCollection.html(addToCollection);
@@ -469,7 +500,7 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
       let nextNote = document.getElementById(newNoteID);
       setActiveNote(nextNote);
     }
-    
+
     // https://www.geeksforgeeks.org/how-to-remove-an-html-element-using-javascript/
     // TODO: implement trash bin
     function deleteNote() {
@@ -477,7 +508,7 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
       let noteID = currentActiveNote.id;
       //let deletion = '#' + noteID; for the jquery version of remove
       let deletion = document.getElementById(noteID);
-      
+
       // Remove save data 
       saveNoteIDDictionary[noteID] = null;
       //https://www.tutorialspoint.com/Remove-elements-from-a-Dictionary-using-Javascript

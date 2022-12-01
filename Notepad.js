@@ -49,7 +49,7 @@ function registration (username, password) {
 function attemptLogin (username, password) {
     let hashUsername = sha256(username);
     let hashPassword = sha256(password);
-
+    
     // https://www.tutorialspoint.com/remove-json-element-javascript
     // This is the optimal(-?) way to store the usernames and passwords
         // - but we could do something simpler if we wanted
@@ -58,7 +58,7 @@ function attemptLogin (username, password) {
         // -search for password based on username
 
     // only run if password matches username
-    new user = new User(hashUsername, hashPassword);
+    user = new User(hashUsername, hashPassword);
 }
 
 
