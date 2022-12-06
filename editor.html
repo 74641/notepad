@@ -5,8 +5,6 @@ TODO:
 
 -viewing mode vs editing mode (viewing mode would make the top bar hidden and make the div NOT content editable)
 
--add noteCollection global variable to add and remove elements to it
-
 -What if instead of using onClick="loadNote(this)", the element had a static id
 sent in to the function, this way the id is freed up to be used somewhere else-?
 
@@ -14,15 +12,11 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
 
 -Implement Categories
 
--Renaming titles and categories
+-renaming categories
 
 -Undo button
   https://quilljs.com/docs/modules/history/
   quill.history.undo();
-
--Set max height of note collection and set overflow to hidden
-
--make container width on desktop less restrictive (maybe done...)
 
 -Expand note collection item on hover if the title is too long (or add character limit)
 
@@ -39,8 +33,12 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
 <html lang="en_us">
 
 <head>
+  <!-- Animate CSS https://animate.style/ -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
   <!-- JQUERY -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 
   <!-- Quill: JS library -->
   <!-- API: https://quilljs.com/docs/api/ -->
@@ -80,12 +78,13 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
       <div class="nav-wrapper blue lighten-5">
 
         <!-- Sidebar for notes when the screen size is phone or tablet sized -->
-        <a id="sidebarBtn" href="#" data-target="sidenav-container" class="pulse sidenav-trigger btn hide-on-large-only">
+        <a id="sidebarBtn" href="#" data-target="sidenav-container"
+          class="pulse sidenav-trigger btn hide-on-large-only">
           <i class="material-icons">menu</i>
         </a>
 
         <!-- Logo -->
-        <a href="#" class="left brand-logo grey-text text-darken-3">Notepad</a>
+        <a href="#" style="margin-left: 25px;" class="left brand-logo grey-text text-darken-3">Notepad</a>
 
 
 
@@ -98,7 +97,6 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
         <ul id='dropdown1' class='dropdown-content'>
           <li><a href="login form.html">Logout</a></li>
         </ul>
-
       </div>
     </nav>
 
@@ -118,6 +116,9 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
             <!-- Delete Note Button (visible only when a note is selected) -->
             <a id="deleteBtn" class="waves-effect waves-light btn" onclick="deleteNote()"><i
                 class="material-icons">remove</i></a>
+
+
+
             <!-- Search for Notes based on Title -->
             <div class="input-field">
               <input id="search" type="search" class="validate">
@@ -125,10 +126,7 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
             </div>
             <!-- Note Directory -->
             <div id="noteCollection" class="collection">
-              <a id="564743" href="#!" onclick="loadNote(this)" class="collection-item">Example 1</a>
-              <a id="345765" href="#!" onclick="loadNote(this)" class="collection-item">Example 2</a>
-              <a id="798532" href="#!" onclick="loadNote(this)" class="collection-item">Example 3</a>
-              <a id="234658" href="#!" onclick="loadNote(this)" class="collection-item">Example 4</a>
+
             </div>
           </div>
 
@@ -136,18 +134,24 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
 
 
 
-        <div class="col s12 l9" id="note-contents">
+        <div class="col s12 m12 l9" id="note-contents">
           <div class="input-field">
             <input id="title" type="search">
-            <label for="title">Title</label>
+            <label id="titleLabel" for="title">Title</label>
           </div>
-          <div id="editor-area">
+          <div id="editor-area" class="animate__animated animate__backInRight">
             <div id=editor-container>
               <!--Quill Editor goes here (inserted by addNote function)-->
             </div>
           </div>
         </div>
-
+        <style>
+          .color-choice {
+            width: 25px !important;
+            height: 25px !important;
+            padding: 0px !important;
+          }
+        </style>
       </div>
       <!--end of row-->
     </div>
@@ -198,13 +202,298 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
 
     }
 
+    /* Set noteCollection max-height to 62 percent of browser height */
     #noteCollection {
       overflow: scroll;
       max-height: 62vh;
     }
+
+    .context-menu {
+      position: absolute;
+      text-align: center;
+      background: lightgray;
+      border: 1px solid black;
+      border-radius: 5px;
+    }
+
+    .context-menu ul {
+      padding: 0px;
+      margin: 0px;
+      min-width: 150px;
+      list-style: none;
+    }
+
+    .context-menu ul li {
+      padding-bottom: 7px;
+      padding-top: 7px;
+      border: 1px solid black;
+      border-radius: 5px;
+    }
+
+    .context-menu ul li a {
+      text-decoration: none;
+      color: black;
+    }
+
+    .context-menu ul li:hover {
+      background: lightblue;
+    }
   </style>
+  <div id="contextMenu" class="context-menu" style="display: none">
+    <ul id="contextMenuList">
+      <!--<li><a href="#">Rename Note</a></li>-->
+      <!--<li><a href="#">Choose Color</a></li>-->
+      <li><a href="#" onclick="deleteNote()">Delete Note</a></li>
+      <a onclick="choosePrimaryColor('red')" class="color-choice waves-effect waves-light btn red"></a>
+      <a onclick="choosePrimaryColor('blue')" class="color-choice waves-effect waves-light btn blue"></a>
+      <a onclick="choosePrimaryColor('purple')" class="color-choice waves-effect waves-light btn purple"></a>
+      <a onclick="choosePrimaryColor('green')" class="color-choice waves-effect waves-light btn green"></a>
+      <a onclick="choosePrimaryColor('yellow')" class="color-choice waves-effect waves-light btn yellow"></a>
+      <a onclick="choosePrimaryColor('amber')" class="color-choice waves-effect waves-light btn amber"></a>
+      <a onclick="choosePrimaryColor('teal')" class="color-choice waves-effect waves-light btn teal accent-3"></a>
+    </ul>
+  </div>
   <script>
-    //window.location.href = 'login form.html';
+    // INITIALIZE OBJECTS
+    // ###################################
+    // ###################################
+    // ###################################
+    // ###################################
+
+    class prototypeClassNote {
+      constructor(noteDictionary) {
+        this._noteDictionary = noteDictionary;
+        this._activeNote = null;
+      }
+      get noteDictionary() {
+        return this._noteDictionary;
+      }
+      get activeNote() {
+        return this._activeNote;
+      }
+      set activeNote(id) {
+        this._activeNote = id;
+      }
+
+      // Create new note at the top of the list and prefill all appropriate values
+      newNote(id) {
+        this._noteDictionary[id] = {};
+        this._noteDictionary[id].Title = "New Note";
+        this._noteDictionary[id].Content = "";
+        this._noteDictionary[id].Order = 0;
+        this._noteDictionary[id].Color = null;
+        console.log("Adding new note with id: " + id);
+      }
+
+      // Set and get note title
+      setNoteTitle(id, title) {
+        this._noteDictionary[id].Title = title;
+      }
+      getNoteTitle(id) {
+        return this._noteDictionary[id].Title;
+      }
+
+      // Set and get note content
+      setNoteContent(id, content) {
+        this._noteDictionary[id].Content = content;
+      }
+      getNoteContent(id) {
+        return this._noteDictionary[id].Content;
+      }
+
+      // Set and get note order
+      setNoteOrder(id, order) {
+        this._noteDictionary[id].Order = order;
+      }
+      getNoteOrder(id) {
+        return this._noteDictionary[id].Order;
+      }
+
+      // Set and get note color
+      setNoteColor(id, color) {
+        this._noteDictionary[id].Color = color;
+        
+        $('#'+id).css("background-color", color); //default is background-color: #26a69a;
+      }
+      getNoteColor(id) {
+        return this._noteDictionary[id].Color
+      }
+
+      // Delete a note
+      deleteNote(id) {
+        delete this._noteDictionary[id];
+      }
+    }
+
+
+
+    // Symbolizes getting user data from AJAX request
+    const saveNoteIDDictionary = {};
+
+    // Send the user data to the server to get the noteDictionary
+    /*
+    $.ajax({
+      data: userID, url: "demo_test.txt", success: function (noteDictionary) {
+        //let noteClassObject = new prototypeClassNote(noteDictionary);
+      }
+    });
+    */
+
+    // Store dictionary in class object
+    let noteClassObject = new prototypeClassNote(saveNoteIDDictionary);
+
+    // Notes for testing
+    noteClassObject.newNote(564743);
+    noteClassObject.newNote(345765);
+    noteClassObject.newNote(798532);
+    noteClassObject.newNote(234658);
+
+
+    // Delete and Add button objects
+    let deleteBtn = $('#deleteBtn');
+    let addBtn = document.getElementById("addBtn");
+
+    // Title input object
+    let titleInput = $('#title');
+
+    // Note collection object
+    let noteCollection = $('#noteCollection');
+
+//noteCollection.prepend('<a id=' + newNoteID + noteObjectProps + newNotePresetTitle + '</a>'); (for reference)
+    let noteObjectProps = ' href="#!" onclick="loadNote(this)" class="truncate collection-item animate__animated animate__zoomIn animate__faster">';
+
+    // Side bar button when screen size is phone or tablet sized
+    let sidebarBtn = $('#sidebarBtn');
+
+    // Side bar containing the note collection
+    let sideBar = $('#sidebar');
+
+    // Quill Text Editor
+    var quill = new Quill('#editor-container', {
+      modules: {
+        toolbar: [
+          [{ header: [1, 2, false] }],
+          ['bold', 'italic', 'underline'],
+          ['image', 'code-block']
+        ]
+      },
+      placeholder: 'Your thoughts...',
+      theme: 'snow'  // or 'bubble'
+    });
+
+    // Disable Quill initially 
+    disableEditor();
+
+
+    // Init drag-to-sort function
+    // TODO:
+    $(function () {
+      $('#noteCollection').sortable();
+    });
+
+    // Display each loaded note on the page
+    initNoteList();
+    function initNoteList() {
+      // Get the ids in the dictionary into an array that we can iterate through
+      let keys = Object.keys(noteClassObject.noteDictionary);
+      console.log(keys);
+      for (let i = 0; i < keys.length; i++) {
+        let id = keys[i];
+        let title = noteClassObject.getNoteTitle(id);
+        addToNoteCollection(id, title);
+      }
+    }
+    
+
+    // https://www.w3schools.com/jquery/tryit.asp?filename=tryjquery_filters_anything
+    // Search box
+    $(document).ready(function () {
+      $("#search").on("keyup", function () {
+        var value = $(this).val().toLowerCase();
+        $("#noteCollection *").filter(function () {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+    });
+
+    // INITIALIZE OBJECTS
+    // ###################################
+    // ###################################
+    // ###################################
+    // ###################################
+
+
+
+    //COLOR PICKER
+    let primaryColor;
+    function choosePrimaryColor(color) {
+      let id = noteClassObject.activeNote;
+      noteClassObject.setNoteColor(id, color);
+      
+      // When adding this class, set dictionary note color for use in functions
+      //target.addClass(color);
+      // When clicking on a color-setter classed note, different interface elements should recolor too
+      //target.addClass("color-setter");
+    }
+    //COLOR PICKER
+
+
+
+    // CONTEXT MENU OVERRIDE 
+    // ###################################
+    // ###################################
+    // ###################################
+    // ###################################
+
+    
+    $(".collection-item").contextmenu(function () {
+      //rightClick;
+    });
+    
+
+    // https://www.geeksforgeeks.org/how-to-add-a-custom-right-click-menu-to-a-webpage/
+    document.onclick = hideMenu;
+
+    // Initialize target
+    let target;
+    function rightClick(e) {
+      e.preventDefault();
+      // Gets the right-clicked element
+      target = $(e.target);
+      // Needed because loadNote expects a vanilla js DOM object
+      target.id = target.attr('id');
+      loadNote(target);
+
+      if (document.getElementById("contextMenu").style.display == "block")
+        hideMenu();
+      else {
+        var menu = document.getElementById("contextMenu");
+
+        menu.style.display = 'block';
+        menu.style.left = e.pageX + "px";
+        menu.style.top = e.pageY + "px";
+      }
+    }
+
+    function hideMenu() {
+      document.getElementById("contextMenu").style.display = "none";
+      target = null;
+    }
+
+    // ###################################
+    // ###################################
+    // ###################################
+    // ###################################
+    // CONTEXT MENU OVERRIDE
+
+
+
+    // RESIZING
+    // ###################################
+    // ###################################
+    // ###################################
+    // ###################################
+
     // https://stackoverflow.com/questions/30710114/dynamic-javascript-when-changing-screen-size
     // A LOT of this could be mitigated by just using two different versions of the note collection list (One for phone/tablet and one for Desktop) 
     //  This would make it more accessible for theming purposes for instance
@@ -225,20 +514,31 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
     //    --Remove the sidenav class
     //    --Set width to 100% of container (to undo the width changes for the sidenav)
     //    --Remove transform op (When clicking the sidenav btn, and then switching screen sizes ie: phone to desktop size, the transform animation sticks and we need to unset it to have it show again)
+
+    let currentBrowserWidth;
+    let resizeTimeout;
     function resize() {
+      clearTimeout(resizeTimeout);
+      $('body').addClass("animate__animated");
+      $('body').addClass("animate__fadeOut");
+      $('body').addClass("animate__faster");
       // https://stackoverflow.com/questions/10180782/jquery-resize-using-browser-maximise-button
-      // Set small delay, NEEDED to fix an otherwise unfixable interaction with the browser
-      setTimeout(function () {
+      // Set small delay, NEEDED to fix an otherwise unfixable interaction with the browser - might add a little visual lag
+      resizeTimeout = setTimeout(function () {
+        $('body').removeClass("animate__fadeOut");
+        $('body').addClass("animate__fadeIn");
         // If the browser window width is small (phone) or medium (tablet)
-        if ($(window).width() <= 993) {
+        if ($(window).width() < 993) {
+          $("#noteCollection").addClass("scale-transition");
+          $("#noteCollection").addClass("scale-in");
           // Remove animation
           $("#sidenav-container").removeClass("scale-transition");
           $("#sidenav-container").removeClass("scale-in");
-          // Sidenav class forinteraction with MCSS
+          // Sidenav class for interaction with MCSS
           $("#sidenav-container").addClass("sidenav");
           // Remove dropshadow
-          $('#sidebar').removeClass("z-depth-1");
-          $('#sidebar').removeClass("hoverable");
+          sideBar.removeClass("z-depth-1");
+          sideBar.removeClass("hoverable");
 
           // Initialize M-CSS Sidenav
           $(document).ready(function () {
@@ -257,6 +557,8 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
         }
         // Else the browser window width is large (desktop/laptop)
         else {
+          $("#noteCollection").addClass("scale-transition");
+          $("#noteCollection").addClass("scale-in");
           // Delete javascript/jquery sidenav instance
           $('.sidenav').sidenav('destroy');
           // Add animation
@@ -264,8 +566,11 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
           $("#sidenav-container").addClass("scale-in");
           $("#sidenav-container").removeClass("sidenav");
           // Add dropshadow effect
-          $('#sidebar').addClass("z-depth-1");
-          $('#sidebar').addClass("hoverable");
+          if (noteClassObject.activeNote == null) { // Only if there isn't an active note
+            sideBar.addClass("z-depth-1");
+          }
+
+          sideBar.addClass("hoverable");
 
           // Set width to 100% of container (to undo the width changes for the sidenav)
           $('#sidenav-container').css("width", "");
@@ -273,12 +578,13 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
           $('#sidenav-container').css("transform", "");
 
         }
+        currentBrowserWidth = $(window).width();
       }, 100);
     }
     // When the browser resizes, call the resize function
     $(window).on("resize", resize);
     // Call the resize function initially to set proper classes for the initial screen size
-    resize(); 
+    resize();
 
     // Initialize dropdown
     $(document).ready(function () {
@@ -288,52 +594,33 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
     });
 
 
-
-
-    // Notes are saved here, ONLY until the next page refresh, however.
-    // Query, using ajax, the server using the user id to get the contents (and Title-?) of the notes
-    const saveNoteIDDictionary = {};
-
-
-
-    // Initialize currentActiveNote (basically no note is selected on page load)
-    let currentActiveNote = null;
-    // Delete and Add interface button objects
-    let deleteBtn = $('#deleteBtn');
-    let addBtn = document.getElementById("addBtn");
-    // Title input object
-    let titleInput = $('#title');
-    // Note list object
-    let noteCollection = $('#noteCollection');
-
-    // Side bar button when screen size is phone or tablet sized
-    let sidebarBtn = $('#sidebarBtn');
-
-
-
-    // For saving
-    var Delta = Quill.import('delta');
-    // Create quill editor, put it in the editor-container, it will create another element above it in the editor-area div
-    var quill = new Quill('#editor-container', {
-      modules: {
-        toolbar: [
-          [{ header: [1, 2, false] }],
-          ['bold', 'italic', 'underline'],
-          ['image', 'code-block']
-        ]
-      },
-      placeholder: 'Your thoughts...',
-      theme: 'snow'  // or 'bubble'
-    });
-    // Title-?
-    //let quillTitle = quill.addContainer('ql-editor');
-
-    // Disable quill, hide delete btn initially 
-    disableEditor();
+    // ###################################
+    // ###################################
+    // ###################################
+    // ###################################
+    // RESIZING
 
 
 
 
+
+    // SAVING
+    // ###################################
+    // ###################################
+    // ###################################
+    // ###################################
+
+    // Save title on change
+    titleInput.on("input", saveTitle);
+
+    function saveTitle() {
+      currentTime = new Date();
+      console.log("Changed title of current Note");
+      let title = $('#title').val();
+      let id = noteClassObject.activeNote;
+      noteClassObject.setNoteTitle(id, title);
+      document.getElementById(id).innerHTML = title;
+    }
 
 
     // Will run whenever content is changed within the editor
@@ -345,29 +632,32 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
       if (source == 'api') {
         console.log("An API call triggered this change.");
       } else if (source == 'user') {
-        currentTime = new Date();
-        console.log("A user action triggered this change.");
-
-
-        noteContent = saveNoteIDDictionary[currentActiveNote.id];
-
-        if (autoSaveTimeout == null) {
-          autoSaveTimeout = setTimeout(autoSave, 7000, noteContent, currentTime);
-        }
-
-        //let autoSaveInterval = setInterval(autoSave(saveNoteIDDictionary[currentActiveNote.id],currentTime), 10000);
-        save(noteContent, currentTime, autoSaveTimeout);
-
-
-        saveNoteIDDictionary[currentActiveNote.id] = quill.getContents();
-        previousNoteID = currentActiveNote.id;
+        contentChanged();
       }
     });
+
+    function contentChanged() {
+      currentTime = new Date();
+      console.log("Changed content of current Note");
+      // noteContent = note.content(id); TODO-?
+      noteContent = quill.getContents();
+
+      if (autoSaveTimeout == null) {
+        autoSaveTimeout = setTimeout(autoSave, 7000, noteContent, currentTime);
+      }
+      save(noteContent, currentTime, autoSaveTimeout);
+
+      previousNoteID = noteClassObject.activeNote;
+    }
 
     let lastSaveTime = null;
     let lastEditTime = null;
     function autoSave(noteContent, currentTime) {
       // ajax goes here
+      let id = noteClassObject.activeNote;
+      let content = quill.getContents();
+
+      noteClassObject.setNoteContent(id, content);
       console.log("Saved!");
       lastSaveTime = currentTime;
     }
@@ -390,71 +680,69 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
       lastEditTime = currentTime;
     }
 
-    // Save data before leaving
+    // Save data before leaving (or is it just on a refresh-?)
     window.onbeforeunload = function () {
-      autoSave(noteContent, currentTime);
+      let id = noteClassObject.activeNote;
+      if (id != null) {
+        autoSave(noteContent, currentTime);
+      }
     }
-
 
 
 
     // https://www.w3docs.com/learn-javascript/mutation-observer.html
-    /* NOT FOR LISTENING TO ADDED TEXT IN INPUTS : https://stackoverflow.com/questions/32383349/detect-input-value-change-with-mutationobserver*/
+    let orderTimeout;
     let noteCollectionObserver = new MutationObserver(mutationRecords => {
-      console.log("Changed selected note, saving changes...");
-      autoSave(noteContent, currentTime);
+      // Avoid calculating order many times over when dragging the note continuously
+      clearTimeout(orderTimeout);
+
+      orderTimeout = setTimeout(function () {
+        let noteList = noteCollection.children();
+        for (i = 0; i < noteList.length; i++) {
+          let noteID = noteList[i].id;
+          if (noteList[i].id != "") {
+            noteClassObject.setNoteOrder(noteID, i);
+            console.log("-Order Saved-");
+          } else {
+            // Skip elements without IDs (they show up as empty strings)
+          }
+        }
+      }, 1000); // Time until the order is saved (in ms-?)
     });
 
-    let noteCollectionTemp = document.getElementById('noteCollection');
-    // observe everything except attributes
-    noteCollectionObserver.observe(noteCollectionTemp, {
-      attributes: true,
+    let observeNoteOrder = document.getElementById('noteCollection');
+    // observe when element order changes
+    noteCollectionObserver.observe(observeNoteOrder, {
+      attributes: false,
       childList: true, // observe direct children
-      subtree: true, // lower descendants too
-      characterData: true,
+      subtree: false, // lower descendants too
+      characterData: false,
     });
 
-    /* using jquery
-    function notify() {
-      alert("clicked");
-    }
-    noteCollection.on("click", notify);
-    */
+    // SAVING
+    // ###################################
+    // ###################################
+    // ###################################
+    // ###################################
 
 
 
-    // Debug settings -preset notes to empty quill editor output
-    saveNoteIDDictionary[564743] = quill.getContents();
-    saveNoteIDDictionary[345765] = quill.getContents();
-    saveNoteIDDictionary[798532] = quill.getContents();
-    saveNoteIDDictionary[234658] = quill.getContents();
-
-
-    // https://www.w3schools.com/jquery/tryit.asp?filename=tryjquery_filters_anything
-    // Search box
-    $(document).ready(function () {
-      $("#search").on("keyup", function () {
-        var value = $(this).val().toLowerCase();
-        $("#noteCollection *").filter(function () {
-          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-        });
-      });
-    });
 
     //////////////////////////
     // Enabling the Editor
     function disableEditor() {
+      titleInput.val('');
       quill.setText('');
 
       quill.enable(false);
       titleInput.prop('disabled', true);
-
+      $('#titleLabel').removeClass("active");
       deleteBtn.addClass('hide');
 
       // Enable the pulse effect
       sidebarBtn.addClass("pulse");
       $('#note-contents').css("opacity", "0.5");
-      $('#sidebar').addClass("z-depth-1");
+      sideBar.addClass("z-depth-1");
     }
     // Disabling the Editor
     function enableEditor() {
@@ -467,58 +755,65 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
       sidebarBtn.removeClass("pulse");
 
       $('#note-contents').css("opacity", "");
-      $('#sidebar').removeClass("z-depth-1");
+      sideBar.removeClass("z-depth-1");
     }
     //////////////////////////
 
 
-    function generateNoteID() {
-      // Check if the dictionary already has the generated id (mathematically improbable)
-      let newNoteID = Math.random();
-      while (saveNoteIDDictionary[newNoteID] != null) {
-        //alert("Buy a lottery ticket " + newNoteID);
-        newNoteID = Math.random();
-      }
-      return newNoteID;
-    }
+
 
     function addNote() {
       // https://stackoverflow.com/questions/54835375/how-to-edit-and-save-my-html-file-using-quill
       // returns a json object with contents of the editor
 
-      newNoteID = generateNoteID();
-      let newNotePresetTitle = "New Note"
-      let addToCollection = noteCollection.html() + '<a id=' + newNoteID + ' href="#!" onclick="loadNote(this)" class="collection-item">' + newNotePresetTitle + '</a>';
-      noteCollection.html(addToCollection);
+      let newNoteID = generateNoteID();
+      console.log(newNoteID);
+      noteClassObject.newNote(newNoteID);
 
+      let newNotePresetTitle = noteClassObject.getNoteTitle(newNoteID);
+      //noteCollection.prepend('<a id=' + newNoteID + ' href="#!" onclick="loadNote(this)" oncontextmenu="rightClick()" class="collection-item animate__animated animate__zoomIn animate__faster">' + newNotePresetTitle + '</a>');
+      addToNoteCollection(newNoteID, newNotePresetTitle);
       quill.setText('');
       // Initialize the note with the generated note id
-      // TODO: create new Note object using Note class
-      saveNoteIDDictionary[newNoteID] = quill.getContents();
 
-      // Needed to set active class to the new note
+
+      // Needed to set the active class to the new note
       let nextNote = document.getElementById(newNoteID);
+      // Set context menu to override
+      //nextNote.oncontextmenu = rightClick();
+      // Set focus to the new note
       setActiveNote(nextNote);
     }
+    // Random number generation for the ids
+    function generateNoteID() {
+      // Check if the dictionary already has the generated id (mathematically improbable)
+      let newNoteID = Math.random();
+      while (noteClassObject.noteDictionary[newNoteID] != null) {
+        //alert("Buy a lottery ticket " + newNoteID);
+        newNoteID = Math.random();
+      }
+      return newNoteID;
+    }
+    // Add a note with the sent in id and title
+    function addToNoteCollection(id, title) {
+      
+      noteCollection.prepend('<a id=' + id + noteObjectProps + title + '</a>');
+      $('#' + id).contextmenu(rightClick);
+    }
 
-    // https://www.geeksforgeeks.org/how-to-remove-an-html-element-using-javascript/
-    // TODO: implement trash bin
+    // Delete the note
     function deleteNote() {
-      //let noteCollection = document.getElementById("noteCollection");
-      let noteID = currentActiveNote.id;
+      let id = noteClassObject.activeNote;
       //let deletion = '#' + noteID; for the jquery version of remove
-      let deletion = document.getElementById(noteID);
+      let deletion = document.getElementById(id);
 
       // Remove save data 
-      saveNoteIDDictionary[noteID] = null;
-      //https://www.tutorialspoint.com/Remove-elements-from-a-Dictionary-using-Javascript
-      // Remove id from dictionary
-      delete saveNoteIDDictionary[noteID];
+      noteClassObject.deleteNote(id);
 
-      currentActiveNote = null;
-      //noteCollection.removeChild(deletion);
+      noteClassObject.activeNote = null;
+      //noteCollection.removeChild(deletion); // jquery version
       document.getElementById("noteCollection").removeChild(deletion);
-      //$('a').remove(deletion); Doesn't work for newly added notes-?
+      //$('a').remove(deletion); // Doesn't work for newly added notes-?
       disableEditor();
     }
 
@@ -529,39 +824,45 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
     // (The id can be queried using the dictionary)
     // combine loadNote and setActiveNote-?
     function loadNote(nextNote) {
-      // DEBUG: alert("Destination Note ID: " + nextNote.id);
-      let nextNoteID = nextNote.id;
+      let currentID = noteClassObject.activeNote;
+      if (currentID != null) {
+        autoSave(noteContent, currentTime);
+      }
+      let id = nextNote.id;
 
       // Get the saved contents of the note from the dictionary
-      let loadSaveData = saveNoteIDDictionary[nextNoteID];
-
+      let loadSaveData = noteClassObject.getNoteContent(id);
+      let loadSaveDataTitle = noteClassObject.getNoteTitle(id);
+      titleInput.val(loadSaveDataTitle);
+      $('#titleLabel').addClass("active");
       quill.setContents(loadSaveData);
       setActiveNote(nextNote);
-
-
     }
 
 
     // Clear previous active note, set active note to parameter note ID
     function setActiveNote(nextNote) {
-      // https://stackoverflow.com/questions/13980982/add-class-to-html-with-javascript
-      // https://www.w3schools.com/howto/howto_js_remove_class.asp
-      // https://stackabuse.com/javascript-check-if-variable-is-a-undefined-or-null/
 
-
-
+      // Set navbar color to note
+      /*
+      if (saveNoteIDDictionary[nextNote.id].Color != null) {
+        let setColor = saveNoteIDDictionary[currentActiveNote.id].Color
+        $('.nav-wrapper').removeClass('blue');
+        $('.nav-wrapper').addClass(setColor);
+      }*/
+      //noteClassObject.getNoteColor(currentID)
       let nextNoteID = nextNote.id;
+      let currentID = noteClassObject.activeNote;
 
       // Set the note that was clicked to active (if there was a previous active note)
-      if (currentActiveNote != null) {
-        let currentActiveNoteID = currentActiveNote.id;
+      if (currentID != null) {
         // If there is a note currently active and displayed, set it to NOT active
-        if (currentActiveNoteID != nextNoteID) {
-          document.getElementById(currentActiveNoteID).classList.remove('active', 'active-note');
-          // DEBUG: alert("Previous Note ID: " + currentActiveNoteID);
+        if (currentID != nextNoteID) {
+          document.getElementById(currentID).classList.remove('active', 'active-note');
+          // DEBUG: console.log("Previous Note ID: " + currentID);
 
           // Set the note that was clicked to active
-          currentActiveNote = nextNote;
+          noteClassObject.activeNote = nextNoteID;
           document.getElementById(nextNoteID).classList.add('active', 'active-note');
         } else {
           // Do nothing (the current active note is the same as the destination)
@@ -569,7 +870,7 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
         }
       } else {
         // Set the note that was clicked to active (if there was no previous active note)
-        currentActiveNote = nextNote;
+        noteClassObject.activeNote = nextNoteID;
         document.getElementById(nextNoteID).classList.add('active', 'active-note');
       }
       enableEditor();

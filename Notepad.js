@@ -13,12 +13,22 @@
     // - More checking of inputs to see if they are valid ie: null, empty etc.
     // - Password complexity requirements
     // - More attributes for the classes (-?)
+//AJAX request
+// Since whenever we save new note content to the server
 
+
+function requestUserNotes() {
+    let userNoteDictionary;
+    // Send user ID to server
+
+    return userNoteDictionary;
+}
 
 // TODO: Getters and setters
 // username, password, notecollection
 class User {
     constructor(username, password) {
+        this._noteContents = //Get dictionary from server based on userID
         this._username = username;
         this._password = sha256(password);
     }
@@ -26,9 +36,13 @@ class User {
 // TODO: Getters and setters
 // noteID, noteTitle, noteContent
 class Note {
-    constructor(noteID, noteTitle) {
+    constructor(noteID, noteTitle, noteDictionary) {
         this._noteID = noteID;
         this._noteTitle = noteTitle;
+        this._noteDictionary = noteDictionary;
+    }
+    set noteDictionary(userID) {
+        this._noteDictionary = requestUserNotes(userID);
     }
 }
 
