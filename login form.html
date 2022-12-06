@@ -1,5 +1,6 @@
 <!doctype html>
 <html>
+
     <head>
         <title>Notepad Login</title>
         <link rel="stylesheet" type="text/css" href="style.css">
@@ -32,4 +33,53 @@
             </form>
         </div>
     </body>
+
+
+<head>
+
+    <title>Notepad Login</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body>
+    <div class="login-form">
+        <h1>Login</h1>
+        <h2></h2>
+        <form action="#" method="post">
+            <p><B>Username</B></p>
+            <input type="text" name="user" placeholder="Enter an Username" id="username" required="enter username">
+            <p><B>Password</B></p>
+            <input type="password" name="password" placeholder="Enter a password" id="password" required="required"><br>
+           
+        </form>
+        <button type="submit" onclick="goto()">Login</button>
+    </div>
+    <script>
+      
+        function goto() {
+         
+            let user = document.getElementById('username').value;
+            let pass = document.getElementById('password').value;
+
+            let group;
+            if (user == "12345") {
+                if (pass == "12345678") {
+                    window.location.href='editor.html';
+                    return false;
+                 }
+                else {
+                    alert("Wrong password");
+                }
+            }
+            else {
+                alert("Wrong username");
+            }
+
+        }
+     </script>
+
+</body>
+
 </html>

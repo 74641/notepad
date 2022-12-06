@@ -1,0 +1,6 @@
+For Nov 20-26 I made major changes to the website, like making the list of notes hidden in a sidebar on small/tablet size devices. 
+I also edited the color scheme and made a proper nav bar at the top with the logo and a dropdown hiding the logout button.
+
+
+For Nov 27-Dec 3 I made a context menu for rightclicking on the note items (not working right at the moment) and lots of reorganization of code with
+added comments
