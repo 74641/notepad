@@ -145,13 +145,6 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
             </div>
           </div>
         </div>
-        <style>
-          .color-choice {
-            width: 25px !important;
-            height: 25px !important;
-            padding: 0px !important;
-          }
-        </style>
       </div>
       <!--end of row-->
     </div>
@@ -210,51 +203,9 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
       max-height: 62vh;
     }
 
-    .context-menu {
-      position: absolute;
-      text-align: center;
-      background: lightgray;
-      border: 1px solid black;
-      border-radius: 5px;
-    }
 
-    .context-menu ul {
-      padding: 0px;
-      margin: 0px;
-      min-width: 150px;
-      list-style: none;
-    }
-
-    .context-menu ul li {
-      padding-bottom: 7px;
-      padding-top: 7px;
-      border: 1px solid black;
-      border-radius: 5px;
-    }
-
-    .context-menu ul li a {
-      text-decoration: none;
-      color: black;
-    }
-
-    .context-menu ul li:hover {
-      background: lightblue;
-    }
   </style>
-  <div id="contextMenu" class="context-menu" style="display: none">
-    <ul id="contextMenuList">
-      <!--<li><a href="#">Rename Note</a></li>-->
-      <!--<li><a href="#">Choose Color</a></li>-->
-      <li><a href="#" onclick="deleteNote()">Delete Note</a></li>
-      <a onclick="choosePrimaryColor('red')" class="color-choice waves-effect waves-light btn red"></a>
-      <a onclick="choosePrimaryColor('blue')" class="color-choice waves-effect waves-light btn blue"></a>
-      <a onclick="choosePrimaryColor('purple')" class="color-choice waves-effect waves-light btn purple"></a>
-      <a onclick="choosePrimaryColor('green')" class="color-choice waves-effect waves-light btn green"></a>
-      <a onclick="choosePrimaryColor('yellow')" class="color-choice waves-effect waves-light btn yellow"></a>
-      <a onclick="choosePrimaryColor('amber')" class="color-choice waves-effect waves-light btn amber"></a>
-      <a onclick="choosePrimaryColor('teal')" class="color-choice waves-effect waves-light btn teal accent-3"></a>
-    </ul>
-  </div>
+  
   <script>
     // INITIALIZE OBJECTS
     // ###################################
@@ -262,7 +213,7 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
     // ###################################
     // ###################################
 
-    class prototypeClassNote {
+    class Notes {
       constructor(noteDictionary) {
         this._noteDictionary = noteDictionary;
         this._activeNote = null;
@@ -283,7 +234,6 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
         this._noteDictionary[id].Title = "New Note";
         this._noteDictionary[id].Content = "";
         this._noteDictionary[id].Order = 0;
-        this._noteDictionary[id].Color = null;
         console.log("Adding new note with id: " + id);
       }
 
@@ -311,44 +261,36 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
         return this._noteDictionary[id].Order;
       }
 
-      // Set and get note color
-      setNoteColor(id, color) {
-        this._noteDictionary[id].Color = color;
-        
-        $('#'+id).css("background-color", color); //default is background-color: #26a69a;
-      }
-      getNoteColor(id) {
-        return this._noteDictionary[id].Color
-      }
-
       // Delete a note
       deleteNote(id) {
         delete this._noteDictionary[id];
       }
+
+      saveNotes() {
+        //send noteDictonary using ajax
+      }
     }
 
-
-
     // Symbolizes getting user data from AJAX request
-    const saveNoteIDDictionary = {};
+    const serverData = {};
 
-    // Send the user data to the server to get the noteDictionary
+    // Initialize the noteDictionary given data from the server when sending in the user id
     /*
     $.ajax({
       data: userID, url: "demo_test.txt", success: function (noteDictionary) {
-        //let noteClassObject = new prototypeClassNote(noteDictionary);
+        //let notes = new Notes(noteDictionary);
       }
     });
     */
 
     // Store dictionary in class object
-    let noteClassObject = new prototypeClassNote(saveNoteIDDictionary);
+    let notes = new Notes(serverData);
 
     // Notes for testing
-    noteClassObject.newNote(564743);
-    noteClassObject.newNote(345765);
-    noteClassObject.newNote(798532);
-    noteClassObject.newNote(234658);
+    notes.newNote(564743);
+    notes.newNote(345765);
+    notes.newNote(798532);
+    notes.newNote(234658);
 
 
     // Delete and Add button objects
@@ -361,7 +303,7 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
     // Note collection object
     let noteCollection = $('#noteCollection');
 
-//noteCollection.prepend('<a id=' + newNoteID + noteObjectProps + newNotePresetTitle + '</a>'); (for reference)
+  
     let noteObjectProps = ' href="#!" onclick="loadNote(this)" class="truncate collection-item">';
 
     // Side bar button when screen size is phone or tablet sized
@@ -397,11 +339,11 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
     initNoteList();
     function initNoteList() {
       // Get the ids in the dictionary into an array that we can iterate through
-      let keys = Object.keys(noteClassObject.noteDictionary);
+      let keys = Object.keys(notes.noteDictionary);
       console.log(keys);
       for (let i = 0; i < keys.length; i++) {
         let id = keys[i];
-        let title = noteClassObject.getNoteTitle(id);
+        let title = notes.getNoteTitle(id);
         addToNoteCollection(id, title);
       }
     }
@@ -426,67 +368,11 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
 
 
 
-    //COLOR PICKER
-    let primaryColor;
-    function choosePrimaryColor(color) {
-      let id = noteClassObject.activeNote;
-      noteClassObject.setNoteColor(id, color);
-      
-      // When adding this class, set dictionary note color for use in functions
-      //target.addClass(color);
-      // When clicking on a color-setter classed note, different interface elements should recolor too
-      //target.addClass("color-setter");
-    }
-    //COLOR PICKER
-
-
-
-    // CONTEXT MENU OVERRIDE 
-    // ###################################
-    // ###################################
-    // ###################################
-    // ###################################
-
-    
-    $(".collection-item").contextmenu(function () {
-      //rightClick;
-    });
     
 
-    // https://www.geeksforgeeks.org/how-to-add-a-custom-right-click-menu-to-a-webpage/
-    document.onclick = hideMenu;
 
-    // Initialize target
-    let target;
-    function rightClick(e) {
-      e.preventDefault();
-      // Gets the right-clicked element
-      target = $(e.target);
-      // Needed because loadNote expects a vanilla js DOM object
-      target.id = target.attr('id');
-      loadNote(target);
 
-      if (document.getElementById("contextMenu").style.display == "block")
-        hideMenu();
-      else {
-        var menu = document.getElementById("contextMenu");
-
-        menu.style.display = 'block';
-        menu.style.left = e.pageX + "px";
-        menu.style.top = e.pageY + "px";
-      }
-    }
-
-    function hideMenu() {
-      document.getElementById("contextMenu").style.display = "none";
-      target = null;
-    }
-
-    // ###################################
-    // ###################################
-    // ###################################
-    // ###################################
-    // CONTEXT MENU OVERRIDE
+    
 
 
 
@@ -568,7 +454,7 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
           $("#sidenav-container").addClass("scale-in");
           $("#sidenav-container").removeClass("sidenav");
           // Add dropshadow effect
-          if (noteClassObject.activeNote == null) { // Only if there isn't an active note
+          if (notes.activeNote == null) { // Only if there isn't an active note
             sideBar.addClass("z-depth-1");
           }
 
@@ -619,8 +505,8 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
       currentTime = new Date();
       console.log("Changed title of current Note");
       let title = $('#title').val();
-      let id = noteClassObject.activeNote;
-      noteClassObject.setNoteTitle(id, title);
+      let id = notes.activeNote;
+      notes.setNoteTitle(id, title);
       document.getElementById(id).innerHTML = title;
     }
 
@@ -649,17 +535,17 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
       }
       save(noteContent, currentTime, autoSaveTimeout);
 
-      previousNoteID = noteClassObject.activeNote;
+      previousNoteID = notes.activeNote;
     }
 
     let lastSaveTime = null;
     let lastEditTime = null;
     function autoSave(noteContent, currentTime) {
       // ajax goes here
-      let id = noteClassObject.activeNote;
+      let id = notes.activeNote;
       let content = quill.getContents();
 
-      noteClassObject.setNoteContent(id, content);
+      notes.setNoteContent(id, content);
       console.log("Saved!");
       lastSaveTime = currentTime;
     }
@@ -684,7 +570,7 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
 
     // Save data before leaving (or is it just on a refresh-?)
     window.onbeforeunload = function () {
-      let id = noteClassObject.activeNote;
+      let id = notes.activeNote;
       if (id != null) {
         autoSave(noteContent, currentTime);
       }
@@ -703,7 +589,7 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
         for (i = 0; i < noteList.length; i++) {
           let noteID = noteList[i].id;
           if (noteList[i].id != "") {
-            noteClassObject.setNoteOrder(noteID, i);
+            notes.setNoteOrder(noteID, i);
             console.log("-Order Saved-");
           } else {
             // Skip elements without IDs (they show up as empty strings)
@@ -770,10 +656,9 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
 
       let newNoteID = generateNoteID();
       console.log(newNoteID);
-      noteClassObject.newNote(newNoteID);
+      notes.newNote(newNoteID);
 
-      let newNotePresetTitle = noteClassObject.getNoteTitle(newNoteID);
-      //noteCollection.prepend('<a id=' + newNoteID + ' href="#!" onclick="loadNote(this)" oncontextmenu="rightClick()" class="collection-item animate__animated animate__zoomIn animate__faster">' + newNotePresetTitle + '</a>');
+      let newNotePresetTitle = notes.getNoteTitle(newNoteID);
       addToNoteCollection(newNoteID, newNotePresetTitle);
       quill.setText('');
       // Initialize the note with the generated note id
@@ -781,16 +666,15 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
 
       // Needed to set the active class to the new note
       let nextNote = document.getElementById(newNoteID);
-      // Set context menu to override
-      //nextNote.oncontextmenu = rightClick();
       // Set focus to the new note
       setActiveNote(nextNote);
     }
+
     // Random number generation for the ids
     function generateNoteID() {
       // Check if the dictionary already has the generated id (mathematically improbable)
       let newNoteID = Math.random();
-      while (noteClassObject.noteDictionary[newNoteID] != null) {
+      while (notes.noteDictionary[newNoteID] != null) {
         //alert("Buy a lottery ticket " + newNoteID);
         newNoteID = Math.random();
       }
@@ -798,24 +682,19 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
     }
     // Add a note with the sent in id and title
     function addToNoteCollection(id, title) {
-      
       noteCollection.prepend('<a id=' + id + noteObjectProps + title + '</a>');
-      $('#' + id).contextmenu(rightClick);
     }
 
     // Delete the note
     function deleteNote() {
-      let id = noteClassObject.activeNote;
-      //let deletion = '#' + noteID; for the jquery version of remove
+      let id = notes.activeNote;
       let deletion = document.getElementById(id);
 
       // Remove save data 
-      noteClassObject.deleteNote(id);
+      notes.deleteNote(id);
 
-      noteClassObject.activeNote = null;
-      //noteCollection.removeChild(deletion); // jquery version
+      notes.activeNote = null;
       document.getElementById("noteCollection").removeChild(deletion);
-      //$('a').remove(deletion); // Doesn't work for newly added notes-?
       disableEditor();
     }
 
@@ -824,17 +703,16 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
 
     // Send in the note id to load the note
     // (The id can be queried using the dictionary)
-    // combine loadNote and setActiveNote-?
     function loadNote(nextNote) {
-      let currentID = noteClassObject.activeNote;
+      let currentID = notes.activeNote;
       if (currentID != null) {
         autoSave(noteContent, currentTime);
       }
       let id = nextNote.id;
 
       // Get the saved contents of the note from the dictionary
-      let loadSaveData = noteClassObject.getNoteContent(id);
-      let loadSaveDataTitle = noteClassObject.getNoteTitle(id);
+      let loadSaveData = notes.getNoteContent(id);
+      let loadSaveDataTitle = notes.getNoteTitle(id);
       titleInput.val(loadSaveDataTitle);
       $('#titleLabel').addClass("active");
       quill.setContents(loadSaveData);
@@ -845,16 +723,9 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
     // Clear previous active note, set active note to parameter note ID
     function setActiveNote(nextNote) {
 
-      // Set navbar color to note
-      /*
-      if (saveNoteIDDictionary[nextNote.id].Color != null) {
-        let setColor = saveNoteIDDictionary[currentActiveNote.id].Color
-        $('.nav-wrapper').removeClass('blue');
-        $('.nav-wrapper').addClass(setColor);
-      }*/
-      //noteClassObject.getNoteColor(currentID)
+      
       let nextNoteID = nextNote.id;
-      let currentID = noteClassObject.activeNote;
+      let currentID = notes.activeNote;
 
       // Set the note that was clicked to active (if there was a previous active note)
       if (currentID != null) {
@@ -864,7 +735,7 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
           // DEBUG: console.log("Previous Note ID: " + currentID);
 
           // Set the note that was clicked to active
-          noteClassObject.activeNote = nextNoteID;
+          notes.activeNote = nextNoteID;
           document.getElementById(nextNoteID).classList.add('active', 'active-note');
         } else {
           // Do nothing (the current active note is the same as the destination)
@@ -872,7 +743,7 @@ sent in to the function, this way the id is freed up to be used somewhere else-?
         }
       } else {
         // Set the note that was clicked to active (if there was no previous active note)
-        noteClassObject.activeNote = nextNoteID;
+        notes.activeNote = nextNoteID;
         document.getElementById(nextNoteID).classList.add('active', 'active-note');
       }
       enableEditor();
