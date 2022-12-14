@@ -1,33 +1,37 @@
-<!doctype html>
-<html>
-
-  
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
 
 <head>
-
-    <title>Notepad Login</title>
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <meta charset="utf-8">
+    <title> Login Form</title>
+    <link rel="stylesheet" href="style.css">
+    
 </head>
 
 <body>
-    <div class="login-form">
-       
+    <div class="center">
         <h1>Login</h1>
-        
-        <form action="#" method="post">
-            <p><B>Username</B></p>
-            <input type="text" name="user" placeholder="Enter an Username" id="username" required="enter username">
-            <p><B>Password</B></p>
-            <input type="password" name="password" placeholder="Enter a password" id="password" required="required"><br>
-           
+        <form>
+            <div class="txt_field">
+                <input type="text" required id="username">
+                <span></span>
+                <label>Username</label>
+            </div>
+            <div class="txt_field">
+                <input type="password" required id="paassword">
+                <span></span>
+                <label>Password</label>
+            </div>
+            <div class="pass">Forgot Password?</div>
+            <input type="submit" value="Login" onclick="goto()">
+            <div class="signup_link">
+                Not a member?<a href="#">Sign Up </a>
+            </div>
         </form>
-        <button type="submit" onclick="goto()">Login</button>
+    </div>
     </div>
     <script>
-      
-        function goto() {
+       function goto() {
          
             let user = document.getElementById('username').value;
             let pass = document.getElementById('password').value;
@@ -50,5 +54,6 @@
      </script>
 
 </body>
-
 </html>
+
+
